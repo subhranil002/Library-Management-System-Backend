@@ -3,8 +3,11 @@
     "version": "1.0.0",
     "description": "A backend app for a library management system",
     "main": "./src/index.js",
+    "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon src/index.js",
+        "dev": "nodemon src/index.js"
     },
     "repository": {
         "type": "git",
@@ -26,7 +29,10 @@
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.3.1",
         "morgan": "^1.10.0",
-        "multer": "^1.4.5-lts.1",
-        "nodemon": "^3.1.0"
+        "multer": "^1.4.5-lts.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0",
+        "prettier": "^3.2.5"
     }
 }

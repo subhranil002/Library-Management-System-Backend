@@ -3,6 +3,13 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import generateAccessAndRefreshToken from "../utils/generateTokens.util.js";
+import {
+    deleteLocalFiles,
+    uploadImage,
+    deleteImage
+} from "../utils/fileHandler.js";
+import jwt from "jsonwebtoken";
+import constants from "../constants.js";
 
 export const register = asyncHandler(async (req, res, next) => {
     try {
@@ -66,7 +73,7 @@ export const register = asyncHandler(async (req, res, next) => {
         }
 
         // Create new user
-        const newUser = new User({
+        const newUser = await User.create({
             name,
             email,
             phone,
@@ -328,7 +335,7 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
             city,
             pincode,
             address_line_1,
-            address_line_2,
+            address_line_2
         } = req.body;
 
         // Update user details
@@ -343,8 +350,8 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
                     city,
                     pincode,
                     address_line_1,
-                    address_line_2,
-                },
+                    address_line_2
+                }
             },
             { new: true }
         );

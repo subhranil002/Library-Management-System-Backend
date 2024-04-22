@@ -179,3 +179,237 @@ export const logout = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const getCurrentUser = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user details
+        const user = await User.findById(req.user._id).select(
+            "-password -borrowedBooks -refreshToken"
+        );
+
+        // Generate access and refresh token
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshToken(user);
+        user.refreshToken = undefined;
+
+        // Cookie options
+        const cookieOptions = {
+            httpOnly: true,
+            secure: true
+        };
+
+        // Send response
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
+            .json(new ApiResponse("Profile fetched successfully", user));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getCurrentUser :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const changeAvatar = asyncHandler(async (req, res, next) => {
+    try {
+        // Get avatar file from request
+        const avatarLocalPath = req.file ? req.file.path : "";
+
+        // Check if avatar file is empty
+        if (!avatarLocalPath) {
+            deleteLocalFiles([avatarLocalPath]);
+            throw new ApiError("No avatar file provided", 400);
+        }
+
+        // Find current user
+        const user = await User.findById(req.user._id).select("avatar");
+        if (!user) {
+            deleteLocalFiles([avatarLocalPath]);
+            throw new ApiError("Unauthorized request, please login again", 401);
+        }
+
+        // Upload avatar to Cloudinary
+        const newAvatar = await uploadImage(avatarLocalPath);
+        if (!newAvatar.public_id || !newAvatar.secure_url) {
+            deleteLocalFiles([avatarLocalPath]);
+            throw new ApiError("Error uploading avatar", 400);
+        }
+
+        // Delete old avatar
+        const result = await deleteImage(user.avatar.public_id);
+        if (!result) {
+            deleteImage(newAvatar.public_id);
+            throw new ApiError("Error deleting old avatar", 400);
+        }
+
+        // Update user with new avatar
+        const updatedAvatar = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                avatar: {
+                    public_id: newAvatar.public_id,
+                    secure_url: newAvatar.secure_url
+                }
+            },
+            { new: true }
+        ).select("avatar");
+
+        // Return updated user
+        return res
+            .status(200)
+            .json(
+                new ApiResponse("Avatar changed successfully", updatedAvatar)
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: changeAvatar :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const changePassword = asyncHandler(async (req, res, next) => {
+    try {
+        // Get old and new password from request
+        const { oldPassword, newPassword } = req.body;
+
+        // Check if any of the fields is empty
+        if (!oldPassword || !newPassword) {
+            throw new ApiError("All fields are required", 400);
+        }
+
+        // Validate password
+        if (oldPassword.length < 8 || newPassword.length < 8) {
+            throw new ApiError("Password must be at least 8 characters", 400);
+        }
+
+        // Find current user
+        const user = await User.findById(req.user._id).select("password");
+        if (!user) {
+            throw new ApiError("Unauthorized request, please login again", 401);
+        }
+
+        // Check if old password is correct
+        if (!(await user.isPasswordCorrect(oldPassword))) {
+            throw new ApiError("Old password is incorrect", 400);
+        }
+
+        // Update user password
+        user.password = newPassword;
+        await user.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Password changed successfully", {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: changePassword :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const updateProfile = asyncHandler(async (req, res, next) => {
+    try {
+        // Get details from request
+        const {
+            name,
+            country,
+            state,
+            city,
+            pincode,
+            address_line_1,
+            address_line_2,
+        } = req.body;
+
+        // Update user details
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                name,
+                phone,
+                address: {
+                    country,
+                    state,
+                    city,
+                    pincode,
+                    address_line_1,
+                    address_line_2,
+                },
+            },
+            { new: true }
+        );
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Profile updated successfully", {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: updateProfile :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res, next) => {
+    try {
+        // Get refresh token from cookie
+        const oldRefreshToken = req.cookies?.refreshToken;
+        if (!oldRefreshToken) {
+            throw new ApiError("Unauthorized request, please login again", 401);
+        }
+
+        // Check if refresh token is valid
+        const decodedToken = jwt.verify(
+            oldRefreshToken,
+            constants.REFRESH_TOKEN_SECRET
+        );
+        if (!decodedToken?._id) {
+            throw new ApiError("User not found", 401);
+        }
+
+        // Get refresh token from database
+        const user = await User.findById(decodedToken._id).select(
+            "_id role refreshToken"
+        );
+
+        // Check if refresh token matches with database
+        if (user.refreshToken !== oldRefreshToken) {
+            throw new ApiError("Invalid token", 401);
+        }
+
+        // Generate new tokens
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshToken(user);
+        const cookieOptions = {
+            httpOnly: true,
+            secure: true
+        };
+
+        // Send response
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
+            .json(new ApiResponse("Access token refreshed successfully", {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: refreshAccessToken :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

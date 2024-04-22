@@ -38,3 +38,26 @@ export const isLoggedIn = async (req, res, next) => {
         );
     }
 };
+
+export const authorizedRoles =
+    (...roles) =>
+    async (req, res, next) => {
+        try {
+            // Get current user role
+            const currentRole = req.user?.role;
+
+            // Check if user has required role
+            if (!roles.includes(currentRole)) {
+                throw new ApiError("Unauthorized role", 401);
+            }
+
+            next();
+        } catch (error) {
+            return next(
+                new ApiError(
+                    `auth.middleware :: authorizedRoles: ${error}`,
+                    error.statusCode
+                )
+            );
+        }
+    };

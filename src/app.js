@@ -6,6 +6,7 @@ import constants from "./constants.js";
 import cookieParser from "cookie-parser";
 import healthCheckRouter from "./routes/healthCheck.route.js";
 import userRouter from "./routes/user.route.js";
+import bookRouter from "./routes/book.route.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/book", bookRouter);
 
 // Handle 404 errors
 app.all("*", (req, res) => {

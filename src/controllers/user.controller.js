@@ -329,14 +329,16 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
         await User.findByIdAndUpdate(
             req.user._id,
             {
-                name,
+                name: name || req.user.name,
                 address: {
-                    country,
-                    state,
-                    city,
-                    pincode,
-                    address_line_1,
-                    address_line_2
+                    country: country || req.user.address.country,
+                    state: state || req.user.address.state,
+                    city: city || req.user.address.city,
+                    pincode: pincode || req.user.address.pincode,
+                    address_line_1:
+                        address_line_1 || req.user.address.address_line_1,
+                    address_line_2:
+                        address_line_2 || req.user.address.address_line_2
                 }
             },
             { new: true }

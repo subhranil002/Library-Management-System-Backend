@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import constants from "../constants.js";
 
 // Delete local files
 export const deleteLocalFiles = filePaths => {
@@ -24,7 +25,7 @@ export const uploadImage = async localFilePath => {
         // Upload image
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "image",
-            folder: "BusGo-Backend",
+            folder: constants.CLOUDINARY_FOLDER,
             transformation: [
                 {
                     width: 200,

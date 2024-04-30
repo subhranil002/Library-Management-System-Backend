@@ -128,7 +128,7 @@ userSchema.methods = {
             },
             constants.ACCESS_TOKEN_SECRET,
             {
-                expiresIn: process.env.ACCESS_TOKEN_EXPIRE
+                expiresIn: constants.ACCESS_TOKEN_EXPIRE
             }
         );
     },
@@ -139,7 +139,7 @@ userSchema.methods = {
             },
             constants.REFRESH_TOKEN_SECRET,
             {
-                expiresIn: process.env.REFRESH_TOKEN_EXPIRE
+                expiresIn: constants.REFRESH_TOKEN_EXPIRE
             }
         );
     }

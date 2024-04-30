@@ -43,10 +43,10 @@ const bookSchema = new mongoose.Schema(
             type: String,
             required: [true, "Description is required"],
             trim: true,
-            maxlength: [500, "Description must be less than 500 characters"]
+            maxlength: [1000, "Description must be less than 500 characters"]
         },
-        Genre: {
-            type: String,
+        genre: {
+            type: [String],
             required: [true, "Genre is required"],
             enum: [
                 "FICTION",
@@ -60,6 +60,7 @@ const bookSchema = new mongoose.Schema(
                 "MYSTERY/THRILLER",
                 "FANTASY",
                 "ROMANCE",
+                "COMEDY",
                 "HORROR",
                 "ADVENTURE",
                 "BIOGRAPHY/AUTOBIOGRAPHY",

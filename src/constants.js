@@ -13,6 +13,7 @@ const constants = {
     ACCESS_TOKEN_EXPIRE: process.env.ACCESS_TOKEN_EXPIRE,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     REFRESH_TOKEN_EXPIRE: process.env.REFRESH_TOKEN_EXPIRE,
+    NODE_ENV: process.env.NODE_ENV
 };
 
 export default constants;

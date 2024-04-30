@@ -1,6 +1,13 @@
 import { Router } from "express";
-import { addBook } from "../controllers/book.controller.js";
+import {
+    addBook,
+    changeThumbnail,
+    deleteBook,
+    getBook,
+    searchBook
+} from "../controllers/book.controller.js";
 import { isLoggedIn, authorizedRoles } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
 
 const bookRouter = Router();
 
@@ -8,5 +15,18 @@ const bookRouter = Router();
 bookRouter
     .route("/add-book")
     .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), addBook);
+bookRouter.route("/get-book/:bookCode").get(getBook);
+bookRouter.route("/search-book").get(searchBook);
+bookRouter
+    .route("/change-thumbnail/:bookCode")
+    .put(
+        isLoggedIn,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        upload.single("thumbnail"),
+        changeThumbnail
+    );
+bookRouter
+    .route("/delete-book/:bookCode")
+    .delete(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), deleteBook);
 
 export default bookRouter;

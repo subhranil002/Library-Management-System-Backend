@@ -154,3 +154,195 @@ export const addBook = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const getBook = asyncHandler(async (req, res, next) => {
+    try {
+        // Get book details from request
+        const bookCode = req.params.bookCode;
+
+        // Validate request data
+        if (!bookCode) {
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({ bookCode });
+        if (!book) {
+            throw new ApiError("Book not found", 404);
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Book fetched successfully", book));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: getBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const searchBook = asyncHandler(async (req, res, next) => {
+    try {
+        // Get search query from request
+        const query = req.query.query;
+
+        // Validate request data
+        if (!query) {
+            throw new ApiError("Search query is required", 400);
+        }
+
+        // Search book
+        const books = await Book.aggregate([
+            {
+                $match: {
+                    $or: [
+                        {
+                            "volumeInfo.title": { $regex: query, $options: "i" }
+                        },
+                        {
+                            "volumeInfo.author": {
+                                $regex: query,
+                                $options: "i"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        isbn10: "$industryIdentifiers.isbn10",
+                        isbn13: "$industryIdentifiers.isbn13"
+                    },
+                    book: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$book" }
+            }
+        ]);
+
+        // Handle empty search results
+        if (books.length === 0) {
+            return res.status(200).json(new ApiResponse("No books found", {}));
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Books fetched successfully", books));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: searchBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const changeThumbnail = asyncHandler(async (req, res, next) => {
+    try {
+        // Get book thumbnail from request
+        const bookThumbnailPath = req.file ? req.file.path : "";
+
+        // Validate request data
+        if (!bookThumbnailPath) {
+            throw new ApiError("Book thumbnail is required", 400);
+        }
+
+        // Get book details from request
+        const bookCode = req.params.bookCode;
+
+        // Validate request data
+        if (!bookCode) {
+            deleteLocalFiles([bookThumbnailPath]);
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({ bookCode });
+        if (!book) {
+            deleteLocalFiles([bookThumbnailPath]);
+            throw new ApiError("Book not found", 400);
+        }
+
+        // Upload new thumbnail to Cloudinary
+        const newThumbnail = await uploadImage(bookThumbnailPath);
+        if (!newThumbnail.public_id || !newThumbnail.secure_url) {
+            deleteLocalFiles([bookThumbnailPath]);
+            throw new ApiError("Error uploading thumbnail", 400);
+        }
+
+        // Delete old thumbnail
+        const result = await deleteImage(book.thumbnail.public_id);
+        if (!result) {
+            deleteImage(newThumbnail.public_id);
+            throw new ApiError("Error deleting old avatar", 400);
+        }
+
+        // Update thumbnail
+        book.thumbnail = newThumbnail;
+        await book.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    "Book thumbnail changed successfully",
+                    book.thumbnail
+                )
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: changeThumbnail :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const deleteBook = asyncHandler(async (req, res, next) => {
+    try {
+        // Get book details from request
+        const bookCode = req.params.bookCode;
+
+        // Validate request data
+        if (!bookCode) {
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({ bookCode });
+        if (!book) {
+            throw new ApiError("Book not found", 400);
+        }
+
+        // Delete book thumbnail
+        const result = await deleteImage(book.thumbnail.public_id);
+        if (!result) {
+            throw new ApiError("Error deleting thumbnail", 400);
+        }
+
+        // Delete book
+        await Book.findByIdAndDelete(book._id);
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse(`Book ${bookCode} deleted successfully`, {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: deleteBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

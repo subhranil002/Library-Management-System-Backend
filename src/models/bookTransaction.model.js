@@ -10,6 +10,10 @@ const bookTransactionSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        issuedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
         returnDate: {
             type: Date,
             required: [true, "Return date is required"],

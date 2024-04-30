@@ -78,7 +78,6 @@ const bookSchema = new mongoose.Schema(
             isbn10: {
                 type: String,
                 trim: true,
-                required: [true, "ISBN-10 is required"],
                 minlength: [10, "ISBN-10 must be at least 10 characters"],
                 maxlength: [10, "ISBN-10 must be less than 10 characters"]
             },

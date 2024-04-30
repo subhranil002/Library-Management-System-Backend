@@ -4,6 +4,7 @@ import {
     changeThumbnail,
     deleteBook,
     getBook,
+    issueBook,
     searchBook
 } from "../controllers/book.controller.js";
 import { isLoggedIn, authorizedRoles } from "../middlewares/auth.middleware.js";
@@ -28,5 +29,8 @@ bookRouter
 bookRouter
     .route("/delete-book/:bookCode")
     .delete(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), deleteBook);
+bookRouter
+    .route("/issue-book")
+    .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), issueBook);
 
 export default bookRouter;

@@ -1,4 +1,6 @@
 import { Book } from "../models/book.model.js";
+import { BookTransaction } from "../models/bookTransaction.model.js";
+import { User } from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -7,6 +9,7 @@ import {
     uploadImage,
     deleteImage
 } from "../utils/fileHandler.js";
+import { addDays } from "date-fns";
 
 export const addBook = asyncHandler(async (req, res, next) => {
     try {
@@ -341,6 +344,67 @@ export const deleteBook = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `book.controller :: deleteBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const issueBook = asyncHandler(async (req, res, next) => {
+    try {
+        // Get issue details from request
+        const { bookCode, borrowerEmail } = req.body;
+
+        // Validate request data
+        if (!bookCode || !borrowerEmail) {
+            throw new ApiError("All fields are required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({ bookCode });
+        if (!book) {
+            throw new ApiError("Book not found", 400);
+        }
+
+        // Check if book is not issued
+        const isIssued = await BookTransaction.findOne({
+            book: book._id
+        });
+        if (isIssued) {
+            throw new ApiError("Book already issued", 400);
+        }
+
+        // Check if borrower exists
+        const borrower = await User.findOne({ email: borrowerEmail });
+        if (!borrower) {
+            throw new ApiError("Borrower not found", 400);
+        }
+
+        // Issue book
+        const returnDate = addDays(new Date(), 30);
+        const newBookTransaction = await BookTransaction.create({
+            book: book._id,
+            borrowedBy: borrower._id,
+            issuedBy: req.user._id,
+            returnDate
+        });
+
+        // Add issue history to book and borrower collections
+        book.issueHistory.push(newBookTransaction._id);
+        await book.save();
+        borrower.borrowedBooks.push(book._id);
+        await borrower.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(
+                new ApiResponse("Book issued successfully", newBookTransaction)
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: issueBook :: ${error}`,
                 error.statusCode
             )
         );

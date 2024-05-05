@@ -474,3 +474,46 @@ export const issueBook = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const returnBook = asyncHandler(async (req, res, next) => {
+    try {
+        // Get book details from request
+        const bookCode = req.params.bookCode;
+
+        // Validate request data
+        if (!bookCode) {
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({ bookCode });
+        if (!book) {
+            throw new ApiError("Book not found", 404);
+        }
+
+        // Check if book is not returned
+        const isPending = await BookTransaction.findOne({
+            book: book._id,
+            status: "pending"
+        });
+        if (!isPending) {
+            throw new ApiError("Book already returned", 400);
+        }
+
+        // Return book
+        isPending.status = "returned";
+        await isPending.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Book returned successfully", isPending));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: returnBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

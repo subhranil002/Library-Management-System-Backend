@@ -5,7 +5,8 @@ import {
     deleteBook,
     getBook,
     issueBook,
-    searchBook
+    returnBook,
+    searchBooks
 } from "../controllers/book.controller.js";
 import { isLoggedIn, authorizedRoles } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -17,7 +18,7 @@ bookRouter
     .route("/add-book")
     .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), addBook);
 bookRouter.route("/get-book/:bookCode").get(getBook);
-bookRouter.route("/search-book").get(searchBook);
+bookRouter.route("/search-books").get(searchBooks);
 bookRouter
     .route("/change-thumbnail/:bookCode")
     .put(
@@ -32,5 +33,8 @@ bookRouter
 bookRouter
     .route("/issue-book")
     .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), issueBook);
+bookRouter
+    .route("/return-book/:bookCode")
+    .get(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), returnBook);
 
 export default bookRouter;

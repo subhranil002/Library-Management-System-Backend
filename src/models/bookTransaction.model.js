@@ -6,6 +6,12 @@ const bookTransactionSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Book"
         },
+        bookCode: {
+            type: String,
+            trim: true,
+            required: [true, "Book code is required"],
+            maxlength: [10, "Book code must be less than 10 characters"]
+        },
         borrowedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
@@ -19,6 +25,12 @@ const bookTransactionSchema = new mongoose.Schema(
             required: [true, "Return date is required"],
             trim: true
         },
+        status: {
+            type: String,
+            enum: ["pending", "returned"],
+            default: "pending",
+            trim: true
+        }
     },
     {
         timestamps: true

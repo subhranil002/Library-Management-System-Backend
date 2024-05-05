@@ -89,16 +89,10 @@ const userSchema = new mongoose.Schema(
             enum: ["USER", "LIBRARIAN", "ADMIN"],
             default: "USER"
         },
-        isVerified: {
+        verified: {
             type: Boolean,
             default: false
         },
-        borrowedBooks: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Book"
-            }
-        ],
         refreshToken: {
             type: String,
             default: null,

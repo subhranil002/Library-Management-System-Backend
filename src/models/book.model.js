@@ -110,13 +110,7 @@ const bookSchema = new mongoose.Schema(
                 default:
                     "https://res.cloudinary.com/de4zawd4d/image/upload/v1712392736/samples/cloudinary-icon.png"
             }
-        },
-        issueHistory: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "BookTransaction"
-            }
-        ]
+        }
     },
     {
         timestamps: true

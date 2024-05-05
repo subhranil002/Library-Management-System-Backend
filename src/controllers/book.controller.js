@@ -188,23 +188,69 @@ export const getBook = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const searchBook = asyncHandler(async (req, res, next) => {
+export const searchBooks = asyncHandler(async (req, res, next) => {
     try {
         // Get search query from request
         const query = req.query.query;
+        const genre = req.query.genre;
 
         // Validate request data
-        if (!query) {
-            throw new ApiError("Search query is required", 400);
+        if (!query && !genre) {
+            throw new ApiError("Search query or genre is required", 400);
+        }
+        if (
+            genre &&
+            genre !== "FICTION" &&
+            genre !== "NON-FICTION" &&
+            genre !== "MAGAZINE" &&
+            genre !== "NEWSPAPER" &&
+            genre !== "PERIODICAL" &&
+            genre !== "REFERENCE" &&
+            genre !== "EDUCATION/TEXTBOOKS" &&
+            genre !== "RELIGION/SPIRITUALITY" &&
+            genre !== "MYSTERY/THRILLER" &&
+            genre !== "FANTASY" &&
+            genre !== "ROMANCE" &&
+            genre !== "COMEDY" &&
+            genre !== "HORROR" &&
+            genre !== "ADVENTURE" &&
+            genre !== "BIOGRAPHY/AUTOBIOGRAPHY" &&
+            genre !== "HISTORY" &&
+            genre !== "SELF-HELP" &&
+            genre !== "COOKING/FOOD" &&
+            genre !== "TRAVEL" &&
+            genre !== "COMICS/GRAPHIC NOVELS" &&
+            genre !== "DRAMA" &&
+            genre !== "POETRY" &&
+            genre !== "CHILDREN'S"
+        ) {
+            throw new ApiError(`Invalid genre: ${genre}`, 400);
         }
 
-        // Search book
-        const books = await Book.aggregate([
-            {
+        // Create pipeline
+        const pipeline = [];
+        if (genre) {
+            pipeline.push({
+                $match: {
+                    genre: genre
+                }
+            });
+        }
+        if (query) {
+            pipeline.push({
                 $match: {
                     $or: [
                         {
-                            "volumeInfo.title": { $regex: query, $options: "i" }
+                            "volumeInfo.title": {
+                                $regex: query,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            "volumeInfo.subtitle": {
+                                $regex: query,
+                                $options: "i"
+                            }
                         },
                         {
                             "volumeInfo.author": {
@@ -214,20 +260,30 @@ export const searchBook = asyncHandler(async (req, res, next) => {
                         }
                     ]
                 }
-            },
+            });
+        }
+        pipeline.push(
             {
                 $group: {
-                    _id: {
-                        isbn10: "$industryIdentifiers.isbn10",
-                        isbn13: "$industryIdentifiers.isbn13"
-                    },
-                    book: { $first: "$$ROOT" }
+                    _id: "$industryIdentifiers.isbn13",
+                    uniqueBook: {
+                        $first: "$$ROOT"
+                    }
                 }
             },
             {
-                $replaceRoot: { newRoot: "$book" }
+                $project: {
+                    volumeInfo: "$uniqueBook.volumeInfo",
+                    publisher: "$uniqueBook.publisher",
+                    publishedDate: "$uniqueBook.publishedDate",
+                    genre: "$uniqueBook.genre",
+                    thumbnail: "$uniqueBook.thumbnail"
+                }
             }
-        ]);
+        );
+
+        // Search book
+        const books = await Book.aggregate(pipeline);
 
         // Handle empty search results
         if (books.length === 0) {
@@ -368,32 +424,40 @@ export const issueBook = asyncHandler(async (req, res, next) => {
 
         // Check if book is not issued
         const isIssued = await BookTransaction.findOne({
-            book: book._id
+            book: book._id,
+            status: "pending"
         });
         if (isIssued) {
             throw new ApiError("Book already issued", 400);
         }
 
-        // Check if borrower exists
-        const borrower = await User.findOne({ email: borrowerEmail });
+        // Check if verified borrower exists
+        const borrower = await User.findOne({
+            email: borrowerEmail,
+            verified: true
+        });
         if (!borrower) {
-            throw new ApiError("Borrower not found", 400);
+            throw new ApiError("Borrower is not verified", 400);
+        }
+
+        // Check if borrower already borrowed more than 4 books
+        const bookCount = await BookTransaction.find({
+            borrowedBy: borrower._id,
+            status: "pending"
+        });
+        if (bookCount.length == 4) {
+            throw new ApiError("Maximum 4 books can be borrowed", 400);
         }
 
         // Issue book
         const returnDate = addDays(new Date(), 30);
         const newBookTransaction = await BookTransaction.create({
             book: book._id,
+            bookCode,
             borrowedBy: borrower._id,
             issuedBy: req.user._id,
             returnDate
         });
-
-        // Add issue history to book and borrower collections
-        book.issueHistory.push(newBookTransaction._id);
-        await book.save();
-        borrower.borrowedBooks.push(book._id);
-        await borrower.save();
 
         // Send response
         return res

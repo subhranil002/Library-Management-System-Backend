@@ -3,6 +3,7 @@ import {
     changeAvatar,
     changePassword,
     deleteUser,
+    getBorrowedBooks,
     getCurrentUser,
     login,
     logout,
@@ -27,5 +28,6 @@ userRouter.route("/change-password").put(isLoggedIn, changePassword);
 userRouter.route("/update-profile").put(isLoggedIn, updateProfile);
 userRouter.route("/refresh-token").get(refreshAccessToken);
 userRouter.route("/delete-user").delete(isLoggedIn, deleteUser);
+userRouter.route("/borrowed-books").get(isLoggedIn, getBorrowedBooks);
 
 export default userRouter;

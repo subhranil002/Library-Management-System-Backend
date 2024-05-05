@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { BookTransaction } from "../models/bookTransaction.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -433,6 +434,33 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `user.controller :: deleteUser :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
+    try {
+        // Get bowrrowed books
+        const books = await BookTransaction.find({
+            borrowedBy: req.user._id,
+            status: "pending"
+        });
+
+        // Check if books exist
+        if (!books.length) {
+            return res.status(200).json(new ApiResponse("No books found", {}));
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Books fetched successfully", books));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getBorrowedBooks :: ${error}`,
                 error.statusCode
             )
         );

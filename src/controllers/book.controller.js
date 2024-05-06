@@ -1,6 +1,7 @@
 import { Book } from "../models/book.model.js";
 import { BookTransaction } from "../models/bookTransaction.model.js";
 import { User } from "../models/user.model.js";
+import { Fine } from "../models/fine.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -9,7 +10,7 @@ import {
     uploadImage,
     deleteImage
 } from "../utils/fileHandler.js";
-import { addDays } from "date-fns";
+import { addDays, isBefore } from "date-fns";
 
 export const addBook = asyncHandler(async (req, res, next) => {
     try {
@@ -424,8 +425,10 @@ export const issueBook = asyncHandler(async (req, res, next) => {
 
         // Check if book is not issued
         const isIssued = await BookTransaction.findOne({
-            book: book._id,
-            status: "pending"
+            "book._id": book._id,
+            status: {
+                $in: ["PENDING", "PAID", "FINED"]
+            }
         });
         if (isIssued) {
             throw new ApiError("Book already issued", 400);
@@ -440,22 +443,52 @@ export const issueBook = asyncHandler(async (req, res, next) => {
             throw new ApiError("Borrower is not verified", 400);
         }
 
-        // Check if borrower already borrowed more than 4 books
-        const bookCount = await BookTransaction.find({
-            borrowedBy: borrower._id,
-            status: "pending"
+        // Check if borrower is fined
+        const bookTransaction = await BookTransaction.find({
+            "borrowedBy._id": borrower._id,
+            status: {
+                $in: ["PENDING", "PAID", "FINED"]
+            }
         });
-        if (bookCount.length == 4) {
+        for (const transaction of bookTransaction) {
+            if (transaction.status === "PENDING") {
+                const overdue = isBefore(transaction.returnDate, new Date());
+                if (overdue) {
+                    console.log(transaction);
+                    transaction.status = "FINED";
+                    await transaction.save();
+                    await Fine.create({
+                        transaction,
+                        fineReason: "Return overdue"
+                    });
+                    throw new ApiError("Return overdue", 400);
+                }
+            } else if (transaction.status === "FINED") {
+                throw new ApiError("Borrower is fined", 400);
+            }
+        }
+
+        // Check if borrower already borrowed more than 4 books
+        if (bookTransaction.length == 4) {
             throw new ApiError("Maximum 4 books can be borrowed", 400);
         }
+
+        // Check if borrower has same copy of book
+        // const isSameBook = await BookTransaction.findOne({
+        //     "borrowedBy._id": borrower._id,
+        //     "book.industryIdentifiers.isbn13": book.industryIdentifiers.isbn13
+        // });
+        // if (isSameBook) {
+        //     throw new ApiError("Borrower already has same copy of book", 400);
+        // }
 
         // Issue book
         const returnDate = addDays(new Date(), 30);
         const newBookTransaction = await BookTransaction.create({
-            book: book._id,
+            book: book,
             bookCode,
-            borrowedBy: borrower._id,
-            issuedBy: req.user._id,
+            borrowedBy: borrower,
+            issuedBy: req.user,
             returnDate
         });
 
@@ -493,15 +526,36 @@ export const returnBook = asyncHandler(async (req, res, next) => {
 
         // Check if book is not returned
         const isPending = await BookTransaction.findOne({
-            book: book._id,
-            status: "pending"
+            "book._id": book._id,
+            status: {
+                $in: ["PENDING", "PAID", "FINED"]
+            }
         });
         if (!isPending) {
             throw new ApiError("Book already returned", 400);
         }
 
+        // Check for overdue return
+        if (isPending.status === "PENDING") {
+            const overdue = isBefore(isPending.returnDate, new Date());
+            if (overdue) {
+                isPending.status = "FINED";
+                await isPending.save();
+                await Fine.create({
+                    transaction: isPending,
+                    fineReason: "Return overdue"
+                });
+                throw new ApiError("Return overdue", 400);
+            }
+        }
+
+        // Check if borrower is fined
+        if (isPending.status === "FINED") {
+            throw new ApiError("Borrower is fined", 400);
+        }
+
         // Return book
-        isPending.status = "returned";
+        isPending.status = "RETURNED";
         await isPending.save();
 
         // Send response

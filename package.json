@@ -1,39 +1,41 @@
 {
-    "name": "library-management-system-backend",
-    "version": "1.0.0",
-    "description": "A backend app for a library management system",
-    "main": "./src/index.js",
-    "type": "module",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node src/index.js",
-        "dev": "nodemon src/index.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/subhranil002/Library-Management-System-Backend.git"
-    },
-    "author": "Subhranil Chakraborty",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/subhranil002/Library-Management-System-Backend/issues"
-    },
-    "homepage": "https://github.com/subhranil002/Library-Management-System-Backend#readme",
-    "dependencies": {
-        "bcrypt": "^5.1.1",
-        "cloudinary": "^2.1.0",
-        "cookie-parser": "^1.4.6",
-        "cors": "^2.8.5",
-        "date-fns": "^3.6.0",
-        "dotenv": "^16.4.5",
-        "express": "^4.19.2",
-        "jsonwebtoken": "^9.0.2",
-        "mongoose": "^8.3.1",
-        "morgan": "^1.10.0",
-        "multer": "^1.4.5-lts.1"
-    },
-    "devDependencies": {
-        "nodemon": "^3.1.0",
-        "prettier": "^3.2.5"
-    }
+  "name": "library-management-system-backend",
+  "version": "1.0.0",
+  "description": "A backend app for a library management system",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subhranil002/Library-Management-System-Backend.git"
+  },
+  "author": "Subhranil Chakraborty",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/subhranil002/Library-Management-System-Backend/issues"
+  },
+  "homepage": "https://github.com/subhranil002/Library-Management-System-Backend#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.1.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "razorpay": "^2.9.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5"
+  }
 }

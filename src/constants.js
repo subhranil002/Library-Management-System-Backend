@@ -2,6 +2,7 @@ import "dotenv/config";
 
 const constants = {
     PORT: process.env.PORT,
+    NODE_ENV: process.env.NODE_ENV,
     CORS_ORIGIN: process.env.CORS_ORIGIN,
     MONGO_URI: process.env.MONGO_URI,
     DB_NAME: process.env.DB_NAME,
@@ -13,7 +14,9 @@ const constants = {
     ACCESS_TOKEN_EXPIRE: process.env.ACCESS_TOKEN_EXPIRE,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     REFRESH_TOKEN_EXPIRE: process.env.REFRESH_TOKEN_EXPIRE,
-    NODE_ENV: process.env.NODE_ENV
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+    RAZORPAY_SECRET: process.env.RAZORPAY_SECRET,
+    FINE_AMOUNT_PER_DAY: process.env.FINE_AMOUNT_PER_DAY
 };
 
 export default constants;

@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import { BookTransaction } from "../models/bookTransaction.model.js";
+import { Fine } from "../models/fine.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -11,6 +12,7 @@ import {
 } from "../utils/fileHandler.js";
 import jwt from "jsonwebtoken";
 import constants from "../constants.js";
+import { isBefore } from "date-fns";
 
 export const register = asyncHandler(async (req, res, next) => {
     try {
@@ -503,6 +505,135 @@ export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `user.controller :: getBorrowedBooks :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const getFineDetails = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user transactions
+        const userTransactions = await BookTransaction.find({
+            "borrowedBy._id": req.user._id,
+            status: {
+                $in: ["PENDING", "FINED"]
+            }
+        });
+
+        // Check if user transactions exist
+        if (!userTransactions.length) {
+            return res
+                .status(200)
+                .json(new ApiResponse("No transactions found", {}));
+        }
+
+        // Check if any of the transactions are fined
+        for (const transaction of userTransactions) {
+            if (transaction.status === "PENDING") {
+                const overdue = isBefore(transaction.returnDate, new Date());
+                if (overdue) {
+                    console.log(transaction);
+                    transaction.status = "FINED";
+                    await transaction.save();
+                    await Fine.create({
+                        transaction,
+                        fineReason: "Return overdue"
+                    });
+                }
+            }
+        }
+
+        // Get fined transactions
+        const finedTransactions = userTransactions.filter(
+            transaction => transaction.status === "FINED"
+        );
+
+        // Check if fined transaction exists
+        if (!finedTransactions.length) {
+            return res.status(200).json(new ApiResponse("No fines found", {}));
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(
+                new ApiResponse("Fines fetched successfully", finedTransactions)
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getFineDetails :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const fetchFineDetails = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user email
+        const { email } = req.body;
+
+        // Check if email is valid
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+
+        // Get user transactions
+        const userTransactions = await BookTransaction.find({
+            "borrowedBy.email": email,
+            status: {
+                $in: ["PENDING", "FINED"]
+            }
+        });
+
+        // Check if user transactions exist
+        if (!userTransactions.length) {
+            return res
+                .status(200)
+                .json(new ApiResponse("No transactions found", {}));
+        }
+
+        // Check if any of the transactions are fined
+        for (const transaction of userTransactions) {
+            if (transaction.status === "PENDING") {
+                const overdue = isBefore(transaction.returnDate, new Date());
+                if (overdue) {
+                    console.log(transaction);
+                    transaction.status = "FINED";
+                    await transaction.save();
+                    await Fine.create({
+                        transaction,
+                        fineReason: "Return overdue"
+                    });
+                }
+            }
+        }
+
+        // Get fined transactions
+        const finedTransactions = userTransactions.filter(
+            transaction => transaction.status === "FINED"
+        );
+
+        // Check if fined transaction exists
+        if (!finedTransactions.length) {
+            return res.status(200).json(new ApiResponse("No fines found", {}));
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(
+                new ApiResponse("Fines fetched successfully", finedTransactions)
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getFineDetails :: ${error}`,
                 error.statusCode
             )
         );

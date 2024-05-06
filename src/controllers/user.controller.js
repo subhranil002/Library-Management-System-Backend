@@ -317,7 +317,9 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
     try {
         // Get details from request
         const {
+            email,
             name,
+            phone,
             country,
             state,
             city,
@@ -326,23 +328,61 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
             address_line_2
         } = req.body;
 
+        // Validate fields
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+        if (
+            !name &&
+            !phone &&
+            !country &&
+            !state &&
+            !city &&
+            !pincode &&
+            !address_line_1 &&
+            !address_line_2
+        ) {
+            throw new ApiError("At least one field is required to update", 400);
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+        if (phone && !/^(\+91[\-\s]?)?[0]?[6-9]\d{9}$/.test(phone)) {
+            throw new ApiError("Invalid phone number format", 400);
+        }
+
+        // Check if phone exists
+        const phoneExists = await User.findOne({ phone });
+        if (phoneExists) {
+            throw new ApiError("Phone number already exists", 400);
+        }
+
+        // Find user
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        }
+
         // Update user details
-        await User.findByIdAndUpdate(
-            req.user._id,
+        await User.findOneAndUpdate(
+            { email },
             {
-                name: name || req.user.name,
+                name: name || user.name,
+                phone: phone || user.phone,
                 address: {
-                    country: country || req.user.address.country,
-                    state: state || req.user.address.state,
-                    city: city || req.user.address.city,
-                    pincode: pincode || req.user.address.pincode,
+                    country: country || user.address.country,
+                    state: state || user.address.state,
+                    city: city || user.address.city,
+                    pincode: pincode || user.address.pincode,
                     address_line_1:
-                        address_line_1 || req.user.address.address_line_1,
+                        address_line_1 || user.address.address_line_1,
                     address_line_2:
-                        address_line_2 || req.user.address.address_line_2
+                        address_line_2 || user.address.address_line_2
                 }
             },
-            { new: true }
+            {
+                new: true
+            }
         );
 
         // Send response
@@ -444,8 +484,10 @@ export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
     try {
         // Get bowrrowed books
         const books = await BookTransaction.find({
-            borrowedBy: req.user._id,
-            status: "pending"
+            "borrowedBy._id": req.user._id,
+            status: {
+                $in: ["PENDING", "FINED", "PAID"]
+            }
         });
 
         // Check if books exist

@@ -29,7 +29,7 @@ bookRouter
     );
 bookRouter
     .route("/delete-book/:bookCode")
-    .delete(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), deleteBook);
+    .delete(isLoggedIn, authorizedRoles("ADMIN"), deleteBook);
 bookRouter
     .route("/issue-book")
     .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), issueBook);

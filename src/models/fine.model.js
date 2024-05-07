@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 const fineSchema = new mongoose.Schema(
     {
         transaction: {
+            _id: {
+                type: String,
+                required: [true, "Transaction id is required"],
+                trim: true
+            },
             book: {
                 _id: {
                     type: String,
@@ -334,11 +339,11 @@ const fineSchema = new mongoose.Schema(
                 type: String,
                 trim: true
             },
-            rozorpay_payment_id: {
+            razorpay_payment_id: {
                 type: String,
                 trim: true
             },
-            rozorpay_signature: {
+            razorpay_signature: {
                 type: String,
                 trim: true
             }

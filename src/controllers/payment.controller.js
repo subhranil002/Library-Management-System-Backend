@@ -160,3 +160,94 @@ export const verifyPayment = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const completePayment = asyncHandler(async (req, res, next) => {
+    try {
+        // Get payment details from request
+        const { razorpay_payment_id, book_transaction_id } = req.body;
+
+        // Validate input data
+        if (!razorpay_payment_id || !book_transaction_id) {
+            throw new ApiError("All fields are required", 400);
+        }
+
+        // Find payment in database
+        const payment = await Payment.findOne({
+            razorpay_payment_id,
+            status: "PAID"
+        });
+        if (!payment) {
+            throw new ApiError("Invalid payment id", 400);
+        }
+
+        // Find book transaction in database
+        const bookTransaction = await BookTransaction.findOne({
+            _id: book_transaction_id,
+            status: "FINED"
+        });
+        if (!bookTransaction) {
+            throw new ApiError("Invalid book transaction details", 400);
+        }
+
+        // Update payment status
+        payment.status = "COMPLETED";
+        await payment.save();
+        bookTransaction.status = "PAID";
+        await bookTransaction.save();
+        const fine = await Fine.findOneAndUpdate(
+            {
+                "transaction._id": bookTransaction._id
+            },
+            {
+                fineAmount: payment.amount / 100,
+                status: "PAID",
+                payment: payment
+            },
+            { new: true }
+        );
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Payment completed successfully", fine));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `payment.controller :: completePayment :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const cancelPayment = asyncHandler(async (req, res, next) => {
+    try {
+        // Get payment details
+        const razorpay_order_id = req.params.razorpay_order_id;
+
+        // Find order_id in database
+        const payment = await Payment.findOne({
+            razorpay_order_id,
+            status: "CREATED"
+        });
+        if (!payment) {
+            throw new ApiError("Invalid payment details", 400);
+        }
+
+        // Update payment status
+        payment.status = "CANCELLED";
+        await payment.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Payment canceled successfully", {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `payment.controller :: cancelPayment :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

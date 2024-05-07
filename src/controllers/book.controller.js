@@ -159,36 +159,6 @@ export const addBook = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const getBook = asyncHandler(async (req, res, next) => {
-    try {
-        // Get book details from request
-        const bookCode = req.params.bookCode;
-
-        // Validate request data
-        if (!bookCode) {
-            throw new ApiError("Book code is required", 400);
-        }
-
-        // Check if book exists
-        const book = await Book.findOne({ bookCode });
-        if (!book) {
-            throw new ApiError("Book not found", 404);
-        }
-
-        // Send response
-        return res
-            .status(200)
-            .json(new ApiResponse("Book fetched successfully", book));
-    } catch (error) {
-        return next(
-            new ApiError(
-                `book.controller :: getBook :: ${error}`,
-                error.statusCode
-            )
-        );
-    }
-});
-
 export const searchBooks = asyncHandler(async (req, res, next) => {
     try {
         // Get search query from request
@@ -278,7 +248,8 @@ export const searchBooks = asyncHandler(async (req, res, next) => {
                     publisher: "$uniqueBook.publisher",
                     publishedDate: "$uniqueBook.publishedDate",
                     genre: "$uniqueBook.genre",
-                    thumbnail: "$uniqueBook.thumbnail"
+                    thumbnail: "$uniqueBook.thumbnail",
+                    industryIdentifiers: "$uniqueBook.industryIdentifiers",
                 }
             }
         );
@@ -299,6 +270,128 @@ export const searchBooks = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `book.controller :: searchBook :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const getBookDetails = asyncHandler(async (req, res, next) => {
+    try {
+        // Get book details from request
+        const isbn13 = req.params.isbn13;
+
+        // Validate request data
+        if (!isbn13) {
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // Check if book exists
+        const book = await Book.findOne({
+            "industryIdentifiers.isbn13": isbn13
+        });
+        if (!book) {
+            throw new ApiError("Book not found", 404);
+        }
+
+        // Get book details
+        const bookDetails = await Book.aggregate([
+            {
+                $match: {
+                    "industryIdentifiers.isbn13":
+                        book.industryIdentifiers.isbn13
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    bookCodes: { $addToSet: "$bookCode" },
+                    totalBooks: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "booktransactions",
+                    localField: "bookCodes",
+                    foreignField: "book.bookCode",
+                    as: "transactions"
+                }
+            },
+            {
+                $addFields: {
+                    issuedBookCodes: {
+                        $map: {
+                            input: {
+                                $filter: {
+                                    input: "$transactions",
+                                    as: "transaction",
+                                    cond: {
+                                        $ne: [
+                                            "$$transaction.status",
+                                            "RETURNED"
+                                        ]
+                                    }
+                                }
+                            },
+                            as: "transaction",
+                            in: "$$transaction.book.bookCode"
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    stock: {
+                        $subtract: [
+                            { $size: "$bookCodes" },
+                            { $size: "$issuedBookCodes" }
+                        ]
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "bookCodes",
+                    foreignField: "bookCode",
+                    as: "bookDetails"
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    volumeInfo: {
+                        $arrayElemAt: ["$bookDetails.volumeInfo", 0]
+                    },
+                    publisher: { $arrayElemAt: ["$bookDetails.publisher", 0] },
+                    publishedDate: {
+                        $arrayElemAt: ["$bookDetails.publishedDate", 0]
+                    },
+                    description: {
+                        $arrayElemAt: ["$bookDetails.description", 0]
+                    },
+                    genre: { $arrayElemAt: ["$bookDetails.genre", 0] },
+                    industryIdentifiers: {
+                        $arrayElemAt: ["$bookDetails.industryIdentifiers", 0]
+                    },
+                    pageCount: { $arrayElemAt: ["$bookDetails.pageCount", 0] },
+                    thumbnail: { $arrayElemAt: ["$bookDetails.thumbnail", 0] },
+                    holding: {
+                        total: "$totalBooks",
+                        stock: "$stock"
+                    }
+                }
+            }
+        ]);
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Book fetched successfully", bookDetails));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `book.controller :: getBook :: ${error}`,
                 error.statusCode
             )
         );

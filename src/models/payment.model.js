@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
     {
+        transaction_id: {
+            type: String,
+            required: true,
+            trim: true
+        },
         razorpay_order_id: {
             type: String,
             required: true,

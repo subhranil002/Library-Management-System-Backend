@@ -3,7 +3,7 @@ import {
     addBook,
     changeThumbnail,
     deleteBook,
-    getBook,
+    getBookDetails,
     issueBook,
     returnBook,
     searchBooks
@@ -17,7 +17,7 @@ const bookRouter = Router();
 bookRouter
     .route("/add-book")
     .post(isLoggedIn, authorizedRoles("LIBRARIAN", "ADMIN"), addBook);
-bookRouter.route("/get-book/:bookCode").get(getBook);
+bookRouter.route("/get-book/:isbn13").get(getBookDetails);
 bookRouter.route("/search-books").get(searchBooks);
 bookRouter
     .route("/change-thumbnail/:bookCode")

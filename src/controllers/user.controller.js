@@ -584,7 +584,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
         if (!email) {
             throw new ApiError("Email is required", 400);
         }
-        if (!validateEmail(email)) {
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
             throw new ApiError("Invalid email format", 400);
         }
 
@@ -622,6 +622,46 @@ export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
         // Get bowrrowed books
         const books = await BookTransaction.find({
             "borrowedBy._id": req.user._id,
+            status: {
+                $in: ["PENDING", "FINED"]
+            }
+        });
+
+        // Check if books exist
+        if (!books.length) {
+            return res.status(200).json(new ApiResponse("No books found", {}));
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Books fetched successfully", books));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getBorrowedBooks :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const fetchBorrowedBooks = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user email from request
+        const { email } = req.body;
+
+        // Check if email is valid
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+        if (!validateEmail(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+
+        // Get bowrrowed books
+        const books = await BookTransaction.find({
+            "borrowedBy.email": email,
             status: {
                 $in: ["PENDING", "FINED"]
             }
@@ -764,6 +804,42 @@ export const fetchFinedBooks = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `user.controller :: getFineDetails :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const getFine = asyncHandler(async (req, res, next) => {
+    try {
+        // get book details from params
+        const { bookCode } = req.params;
+
+        // check if book code is valid
+        if (!bookCode) {
+            throw new ApiError("Book code is required", 400);
+        }
+
+        // get fine details from database
+        const fine = await Fine.findOne({
+            "transaction.book.bookCode": bookCode,
+            "transaction.borrowedBy._id": req.user._id,
+            status: "CREATED"
+        });
+
+        // check if fine details not exist
+        if (!fine) {
+            throw new ApiError("Fine not found", 400);
+        }
+
+        // send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Fine fetched successfully", fine));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: getFine :: ${error}`,
                 error.statusCode
             )
         );

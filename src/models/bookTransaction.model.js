@@ -292,7 +292,7 @@ const bookTransactionSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["PENDING", "FINED", "PAID", "RETURNED"],
+            enum: ["PENDING", "FINED", "RETURNED"],
             default: "PENDING",
         }
     },

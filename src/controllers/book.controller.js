@@ -1,7 +1,6 @@
 import { Book } from "../models/book.model.js";
 import { BookTransaction } from "../models/bookTransaction.model.js";
 import { User } from "../models/user.model.js";
-import { Fine } from "../models/fine.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -10,7 +9,7 @@ import {
     uploadImage,
     deleteImage
 } from "../utils/fileHandler.js";
-import { addDays, isBefore } from "date-fns";
+import { addDays, isBefore, endOfDay } from "date-fns";
 
 export const addBook = asyncHandler(async (req, res, next) => {
     try {
@@ -249,7 +248,7 @@ export const searchBooks = asyncHandler(async (req, res, next) => {
                     publishedDate: "$uniqueBook.publishedDate",
                     genre: "$uniqueBook.genre",
                     thumbnail: "$uniqueBook.thumbnail",
-                    industryIdentifiers: "$uniqueBook.industryIdentifiers",
+                    industryIdentifiers: "$uniqueBook.industryIdentifiers"
                 }
             }
         );
@@ -520,7 +519,7 @@ export const issueBook = asyncHandler(async (req, res, next) => {
         const isIssued = await BookTransaction.findOne({
             "book._id": book._id,
             status: {
-                $in: ["PENDING", "PAID", "FINED"]
+                $in: ["PENDING", "FINED"]
             }
         });
         if (isIssued) {
@@ -540,7 +539,7 @@ export const issueBook = asyncHandler(async (req, res, next) => {
         const bookTransaction = await BookTransaction.find({
             "borrowedBy._id": borrower._id,
             status: {
-                $in: ["PENDING", "PAID", "FINED"]
+                $in: ["PENDING", "FINED"]
             }
         });
         for (const transaction of bookTransaction) {
@@ -550,10 +549,6 @@ export const issueBook = asyncHandler(async (req, res, next) => {
                     console.log(transaction);
                     transaction.status = "FINED";
                     await transaction.save();
-                    await Fine.create({
-                        transaction,
-                        fineReason: "Return overdue"
-                    });
                     throw new ApiError("Return overdue", 400);
                 }
             } else if (transaction.status === "FINED") {
@@ -567,16 +562,19 @@ export const issueBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if borrower has same copy of book
-        // const isSameBook = await BookTransaction.findOne({
-        //     "borrowedBy._id": borrower._id,
-        //     "book.industryIdentifiers.isbn13": book.industryIdentifiers.isbn13
-        // });
-        // if (isSameBook) {
-        //     throw new ApiError("Borrower already has same copy of book", 400);
-        // }
+        const isSameBook = await BookTransaction.findOne({
+            "borrowedBy._id": borrower._id,
+            "book.industryIdentifiers.isbn13": book.industryIdentifiers.isbn13,
+            status: {
+                $in: ["PENDING", "FINED"]
+            }
+        });
+        if (isSameBook) {
+            throw new ApiError("Borrower already has same copy of book", 400);
+        }
 
         // Issue book
-        const returnDate = addDays(new Date(), 30);
+        const returnDate = endOfDay(addDays(new Date(), 30));
         const newBookTransaction = await BookTransaction.create({
             book: book,
             bookCode,
@@ -621,7 +619,7 @@ export const returnBook = asyncHandler(async (req, res, next) => {
         const isPending = await BookTransaction.findOne({
             "book._id": book._id,
             status: {
-                $in: ["PENDING", "PAID", "FINED"]
+                $in: ["PENDING", "FINED"]
             }
         });
         if (!isPending) {
@@ -634,10 +632,6 @@ export const returnBook = asyncHandler(async (req, res, next) => {
             if (overdue) {
                 isPending.status = "FINED";
                 await isPending.save();
-                await Fine.create({
-                    transaction: isPending,
-                    fineReason: "Return overdue"
-                });
                 throw new ApiError("Return overdue", 400);
             }
         }

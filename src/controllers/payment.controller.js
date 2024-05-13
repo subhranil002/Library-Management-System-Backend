@@ -77,7 +77,7 @@ export const createPayment = asyncHandler(async (req, res, next) => {
         const newPayment = await Payment.create({
             transaction_id: bookTransaction._id,
             razorpay_order_id: order.id,
-            amount: order.amount,
+            amount: order.amount / 100,
             currency: order.currency,
             status: "CREATED"
         });

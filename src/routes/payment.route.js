@@ -1,22 +1,41 @@
 import { Router } from "express";
 import {
     cancelPayment,
-    completePayment,
     createPayment,
     getApiKey,
     verifyPayment
 } from "../controllers/payment.controller.js";
-import { isLoggedIn } from "../middlewares/auth.middleware.js";
+import {
+    authorizedRoles,
+    isLoggedIn,
+    isVerified
+} from "../middlewares/auth.middleware.js";
 
 const paymentRouter = Router();
 
 // Routes
-paymentRouter.route("/apikey").get(isLoggedIn, getApiKey);
-paymentRouter.route("/create/:book_transaction_id").post(isLoggedIn, createPayment);
-paymentRouter.route("/verify").post(isLoggedIn, verifyPayment);
-paymentRouter.route("/complete").post(isLoggedIn, completePayment);
+paymentRouter
+    .route("/apikey")
+    .get(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        getApiKey
+    );
+
+paymentRouter
+    .route("/create")
+    .post(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        createPayment
+    );
+
+paymentRouter.route("/verify").post(isLoggedIn, isVerified, verifyPayment);
+
 paymentRouter
     .route("/cancel/:razorpay_order_id")
-    .get(isLoggedIn, cancelPayment);
+    .get(isLoggedIn, isVerified, cancelPayment);
 
 export default paymentRouter;

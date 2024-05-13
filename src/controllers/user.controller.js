@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import { BookTransaction } from "../models/bookTransaction.model.js";
 import { Fine } from "../models/fine.model.js";
+import { Otp } from "../models/otp.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -13,6 +14,7 @@ import {
 import jwt from "jsonwebtoken";
 import constants from "../constants.js";
 import { isBefore } from "date-fns";
+import { sendEmail, validateEmail } from "../utils/sendMail.js";
 
 export const register = asyncHandler(async (req, res, next) => {
     try {
@@ -47,7 +49,7 @@ export const register = asyncHandler(async (req, res, next) => {
         }
 
         // validate email, phone, password and role
-        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        if (!validateEmail(email)) {
             throw new ApiError("Invalid email format", 400);
         }
         if (!/^(\+91[\-\s]?)?[0]?[6-9]\d{9}$/.test(phone)) {
@@ -63,8 +65,10 @@ export const register = asyncHandler(async (req, res, next) => {
             role !== "ADMIN"
         ) {
             throw new ApiError("Invalid role", 400);
-        } else if (role === "ADMIN") {
-            throw new ApiError("Admin cannot register", 400);
+        } else if (role === "LIBRARIAN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Librarian can only be created by admin", 400);
+        } else if (role === "ADMIN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Admin can only be created by admin", 400);
         }
 
         // Check if user already exists
@@ -72,7 +76,7 @@ export const register = asyncHandler(async (req, res, next) => {
             $or: [{ email }, { phone }]
         });
         if (existingUser) {
-            throw new ApiError("User already exists", 400);
+            throw new ApiError(`${role ? role : "User"} already exists`, 400);
         }
 
         // Create new user
@@ -95,15 +99,13 @@ export const register = asyncHandler(async (req, res, next) => {
         // Check if user created successfully
         const user = await User.findById(newUser._id);
         if (!user) {
-            throw new ApiError("User not created", 400);
+            throw new ApiError(`${role ? role : "User"} not created`, 400);
         }
 
         // Send response
         return res
             .status(200)
-            .json(
-                new ApiResponse("User created successfully, Please login", {})
-            );
+            .json(new ApiResponse(`${user.role} created successfully`, {}));
     } catch (error) {
         return next(
             new ApiError(
@@ -124,7 +126,7 @@ export const login = asyncHandler(async (req, res, next) => {
         }
 
         // validate email, password
-        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        if (!validateEmail(email)) {
             throw new ApiError("Incorrect email or password", 400);
         }
         if (password.length < 8) {
@@ -184,6 +186,127 @@ export const logout = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `user.controller :: logout: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const sendOTP = asyncHandler(async (req, res, next) => {
+    try {
+        // Get email
+        const { email } = req.body;
+
+        // Validate input
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+
+        // Validate email format
+        if (!validateEmail(email)) {
+            throw new ApiError("Invalid email", 400);
+        }
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        } else if (user.verified) {
+            throw new ApiError("User already verified", 400);
+        }
+
+        // Check role of user
+        if (user.role === "LIBRARIAN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Only admin can verify librarian", 400);
+        } else if (user.role === "ADMIN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Only admin can verify admin", 400);
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        // Save or update OTP record
+        await Otp.findOneAndUpdate({ email }, { email, otp }, { upsert: true });
+
+        // Send OTP
+        const subject = `Your OTP - ${otp} `;
+        const html = `
+            <h4>Dear User,</h4>
+            <p>Your OTP for TheOpenPage is <strong style="color: #007bff;">${otp}</strong></p>
+            <p>Please use this OTP to complete your user verification on TheOpenPage. Please note that this OTP is valid for a single use and should not be shared with anyone else.</p>
+            <p>If you did not request this OTP or have any concerns about the security of your account, please reach out to our support team immediately at theopenpage.subhranil@gmail.com</p>
+        `;
+        const response = await sendEmail(email, subject, html);
+
+        // If OTP not sent
+        if (!response) {
+            throw new ApiError("Failed to send OTP", 400);
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("OTP sent successfully", {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: sendOTP :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const verifyOTP = asyncHandler(async (req, res, next) => {
+    try {
+        // Get OTP and email from request
+        const { otp, email } = req.body;
+
+        // Check if OTP and email are valid
+        if (!otp || !email) {
+            throw new ApiError("All fields are required", 400);
+        }
+        if (!validateEmail(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+        if (otp.length < 6) {
+            throw new ApiError("OTP must be at least 6 characters", 400);
+        }
+
+        // Get user from database
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        }
+
+        // Check role of user
+        if (user.role === "LIBRARIAN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Only admin can verify librarian", 400);
+        } else if (user.role === "ADMIN" && req.user.role !== "ADMIN") {
+            throw new ApiError("Only admin can verify admin", 400);
+        }
+
+        // Check if OTP is valid
+        const otpRecord = await Otp.findOne({ email, otp });
+        if (!otpRecord) {
+            throw new ApiError("Invalid OTP", 400);
+        }
+
+        // Delete OTP record
+        await Otp.findByIdAndDelete(otpRecord._id);
+
+        // Verify user
+        user.verified = true;
+        await user.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse(`${user.role} verified successfully`, {}));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: verifyOTP :: ${error}`,
                 error.statusCode
             )
         );
@@ -346,7 +469,7 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
         ) {
             throw new ApiError("At least one field is required to update", 400);
         }
-        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        if (!validateEmail(email)) {
             throw new ApiError("Invalid email format", 400);
         }
         if (phone && !/^(\+91[\-\s]?)?[0]?[6-9]\d{9}$/.test(phone)) {
@@ -454,8 +577,22 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
 export const deleteUser = asyncHandler(async (req, res, next) => {
     try {
-        // Get user from request
-        const user = await User.findById(req.user._id);
+        // Get email from request
+        const { email } = req.body;
+
+        // Check if email is valid
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+        if (!validateEmail(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+
+        // Get user from database
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        }
 
         // Delete user's avatar
         const result = await deleteImage(user.avatar.public_id);
@@ -469,9 +606,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
         // Send response
         return res
             .status(200)
-            .clearCookie("accessToken")
-            .clearCookie("refreshToken")
-            .json(new ApiResponse("User deleted successfully", {}));
+            .json(new ApiResponse(`${user.role} deleted successfully`, {}));
     } catch (error) {
         return next(
             new ApiError(
@@ -488,7 +623,7 @@ export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
         const books = await BookTransaction.find({
             "borrowedBy._id": req.user._id,
             status: {
-                $in: ["PENDING", "FINED", "PAID"]
+                $in: ["PENDING", "FINED"]
             }
         });
 
@@ -511,7 +646,7 @@ export const getBorrowedBooks = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const getFineDetails = asyncHandler(async (req, res, next) => {
+export const getFinedBooks = asyncHandler(async (req, res, next) => {
     try {
         // Get user transactions
         const userTransactions = await BookTransaction.find({
@@ -536,10 +671,6 @@ export const getFineDetails = asyncHandler(async (req, res, next) => {
                     console.log(transaction);
                     transaction.status = "FINED";
                     await transaction.save();
-                    await Fine.create({
-                        transaction,
-                        fineReason: "Return overdue"
-                    });
                 }
             }
         }
@@ -558,7 +689,10 @@ export const getFineDetails = asyncHandler(async (req, res, next) => {
         return res
             .status(200)
             .json(
-                new ApiResponse("Fines fetched successfully", finedTransactions)
+                new ApiResponse(
+                    "Fined books fetched successfully",
+                    finedTransactions
+                )
             );
     } catch (error) {
         return next(
@@ -570,7 +704,7 @@ export const getFineDetails = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const fetchFineDetails = asyncHandler(async (req, res, next) => {
+export const fetchFinedBooks = asyncHandler(async (req, res, next) => {
     try {
         // Get user email
         const { email } = req.body;
@@ -579,7 +713,7 @@ export const fetchFineDetails = asyncHandler(async (req, res, next) => {
         if (!email) {
             throw new ApiError("Email is required", 400);
         }
-        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        if (!validateEmail(email)) {
             throw new ApiError("Invalid email format", 400);
         }
 
@@ -606,10 +740,6 @@ export const fetchFineDetails = asyncHandler(async (req, res, next) => {
                     console.log(transaction);
                     transaction.status = "FINED";
                     await transaction.save();
-                    await Fine.create({
-                        transaction,
-                        fineReason: "Return overdue"
-                    });
                 }
             }
         }

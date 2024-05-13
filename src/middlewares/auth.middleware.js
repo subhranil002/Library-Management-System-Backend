@@ -39,6 +39,24 @@ export const isLoggedIn = async (req, res, next) => {
     }
 };
 
+export const isVerified = async (req, res, next) => {
+    try {
+        // Check if user is verified
+        if (!req.user.verified) {
+            throw new ApiError(`${req.user.role} is not verified`, 401);
+        }
+
+        next();
+    } catch (error) {
+        return next(
+            new ApiError(
+                `auth.middleware :: isVerified: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+};
+
 export const authorizedRoles =
     (...roles) =>
     async (req, res, next) => {

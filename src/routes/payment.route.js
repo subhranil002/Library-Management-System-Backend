@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-    cancelPayment,
     createPayment,
+    forceCompletePayment,
     getApiKey,
     verifyPayment
 } from "../controllers/payment.controller.js";
@@ -35,7 +35,12 @@ paymentRouter
 paymentRouter.route("/verify").post(isLoggedIn, isVerified, verifyPayment);
 
 paymentRouter
-    .route("/cancel/:razorpay_order_id")
-    .get(isLoggedIn, isVerified, cancelPayment);
+    .route("/force-complete/:razorpay_order_id")
+    .get(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("ADMIN"),
+        forceCompletePayment
+    );
 
 export default paymentRouter;

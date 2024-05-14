@@ -11,16 +11,18 @@ export const isLoggedIn = async (req, res, next) => {
         }
 
         // Check if access token is valid
-        const decodedAccessToken = jwt.verify(
-            accessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        );
-        if (!decodedAccessToken?._id) {
-            throw new ApiError("Access token is invalid", 401);
+        let decodedAccessToken;
+        try {
+            decodedAccessToken = jwt.verify(
+                accessToken,
+                process.env.ACCESS_TOKEN_SECRET
+            );
+        } catch (error) {
+            new ApiError("Access token is expired", 401);
         }
 
         // Check if user is verified
-        const user = await User.findById(decodedAccessToken._id);
+        const user = await User.findById(decodedAccessToken?._id);
         if (!user) {
             throw new ApiError("User not found", 401);
         }

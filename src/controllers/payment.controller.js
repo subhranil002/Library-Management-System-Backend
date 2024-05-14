@@ -146,26 +146,21 @@ export const verifyPayment = asyncHandler(async (req, res, next) => {
         payment.razorpay_signature = razorpay_signature;
         await payment.save();
 
-        // Find book transaction in database
+        // Find book transaction and fine in database
         const bookTransaction = await BookTransaction.findOne({
             _id: payment.transaction_id
         });
+        const fine = await Fine.findOne({
+            "payment.razorpay_order_id": payment.razorpay_order_id
+        }) 
 
-        // Update transaction details
+        // Update transaction and fine details
         bookTransaction.status = "PENDING";
         bookTransaction.returnDate = endOfTomorrow();
         await bookTransaction.save();
-        const fine = await Fine.findOneAndUpdate(
-            {
-                "transaction._id": bookTransaction._id
-            },
-            {
-                fineAmount: payment.amount / 100,
-                status: "PAID",
-                payment: payment
-            },
-            { new: true }
-        );
+        fine.status = "PAID";
+        fine.payment = payment;
+        await fine.save();
 
         // Send response
         return res
@@ -180,38 +175,6 @@ export const verifyPayment = asyncHandler(async (req, res, next) => {
         return next(
             new ApiError(
                 `payment.controller :: verifyPayment :: ${error}`,
-                error.statusCode
-            )
-        );
-    }
-});
-
-export const cancelPayment = asyncHandler(async (req, res, next) => {
-    try {
-        // Get payment details
-        const razorpay_order_id = req.params.razorpay_order_id;
-
-        // Find order_id in database
-        const payment = await Payment.findOne({
-            razorpay_order_id,
-            status: "CREATED"
-        });
-        if (!payment) {
-            throw new ApiError("Invalid payment details", 400);
-        }
-
-        // Update payment status
-        payment.status = "CANCELLED";
-        await payment.save();
-
-        // Send response
-        return res
-            .status(200)
-            .json(new ApiResponse("Payment canceled successfully", {}));
-    } catch (error) {
-        return next(
-            new ApiError(
-                `payment.controller :: cancelPayment :: ${error}`,
                 error.statusCode
             )
         );

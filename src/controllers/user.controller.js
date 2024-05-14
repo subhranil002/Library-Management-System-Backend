@@ -5,7 +5,7 @@ import { Otp } from "../models/otp.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import generateAccessAndRefreshToken from "../utils/generateTokens.util.js";
+import generateAccessAndRefreshToken from "../utils/generateTokens.js";
 import {
     deleteLocalFiles,
     uploadImage,

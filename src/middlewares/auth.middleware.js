@@ -1,6 +1,7 @@
 import ApiError from "../utils/ApiError.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+import constants from "../constants.js";
 
 export const isLoggedIn = async (req, res, next) => {
     try {
@@ -11,15 +12,19 @@ export const isLoggedIn = async (req, res, next) => {
         }
 
         // Check if access token is valid
-        let decodedAccessToken;
-        try {
-            decodedAccessToken = jwt.verify(
-                accessToken,
-                process.env.ACCESS_TOKEN_SECRET
-            );
-        } catch (error) {
-            new ApiError("Access token is expired", 401);
-        }
+        const decodedAccessToken = jwt.verify(
+            accessToken,
+            constants.ACCESS_TOKEN_SECRET,
+            (err, decoded) => {
+                if (err) {
+                    throw new ApiError(
+                        "Access token is expired",
+                        401
+                    );
+                }
+                return decoded;
+            }
+        );
 
         // Check if user is verified
         const user = await User.findById(decodedAccessToken?._id);

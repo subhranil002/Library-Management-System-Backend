@@ -180,3 +180,61 @@ export const verifyPayment = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const forceCompletePayment = asyncHandler(async (req, res, next) => {
+    try {
+        // Get Order id from params
+        const { razorpay_order_id } = req.params;
+
+        // Validate input data
+        if (!razorpay_order_id) {
+            throw new ApiError("Order id is required", 400);
+        }
+
+        // Find order_id in database
+        const payment = await Payment.findOne({
+            razorpay_order_id,
+            status: "CREATED"
+        });
+        if (!payment) {
+            throw new ApiError("Invalid order id", 400);
+        }
+
+        // Save payment details to database
+        payment.status = "PAID";
+        await payment.save();
+
+        // Find book transaction and fine in database
+        const bookTransaction = await BookTransaction.findOne({
+            _id: payment.transaction_id
+        });
+        const fine = await Fine.findOne({
+            "payment.razorpay_order_id": payment.razorpay_order_id
+        })
+
+        // Update transaction and fine details
+        bookTransaction.status = "PENDING";
+        bookTransaction.returnDate = endOfTomorrow();
+        await bookTransaction.save();
+        fine.status = "PAID";
+        fine.payment = payment;
+        await fine.save();
+
+        // Send response
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    "Payment force completed successfully",
+                    fine
+                )
+            );
+    } catch (error) {
+        return next(
+            new ApiError(
+                `payment.controller :: forceCompletePayment :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

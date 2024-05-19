@@ -27,6 +27,9 @@ export const getApiKey = asyncHandler(async (req, res) => {
     }
 });
 
+export const autoCreatePayment = asyncHandler(async (req, res, next) => {});
+
+// TODO: Custom payment
 export const createPayment = asyncHandler(async (req, res, next) => {
     try {
         // get payment details from request

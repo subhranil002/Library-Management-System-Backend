@@ -845,3 +845,7 @@ export const getFine = asyncHandler(async (req, res, next) => {
         );
     }
 });
+
+export const searchUser = asyncHandler(async (req, res, next) => {});
+
+export const fetchUserDetails = asyncHandler(async (req, res, next) => {});

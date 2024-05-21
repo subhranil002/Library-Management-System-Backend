@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
-    createPayment,
+    autoCreateOverduePayment,
+    customPayment,
     forceCompletePayment,
     getApiKey,
     verifyPayment
@@ -24,12 +25,21 @@ paymentRouter
     );
 
 paymentRouter
-    .route("/create")
+    .route("/create/overdue-payment/:book_transaction_id")
+    .get(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        autoCreateOverduePayment
+    );
+
+paymentRouter
+    .route("/create/custom-payment")
     .post(
         isLoggedIn,
         isVerified,
         authorizedRoles("LIBRARIAN", "ADMIN"),
-        createPayment
+        customPayment
     );
 
 paymentRouter.route("/verify").post(isLoggedIn, isVerified, verifyPayment);

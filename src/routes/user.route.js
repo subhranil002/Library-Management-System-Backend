@@ -5,6 +5,7 @@ import {
     deleteUser,
     fetchBorrowedBooks,
     fetchFinedBooks,
+    fetchUserDetails,
     getBorrowedBooks,
     getCurrentUser,
     getFine,
@@ -13,6 +14,7 @@ import {
     logout,
     refreshAccessToken,
     register,
+    searchUsers,
     sendOTP,
     updateProfile,
     verifyOTP
@@ -102,5 +104,23 @@ userRouter
     );
 
 userRouter.route("/fine/:bookCode").get(isLoggedIn, isVerified, getFine);
+
+userRouter
+    .route("/search")
+    .get(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        searchUsers
+    );
+
+userRouter
+    .route("/fetch-user")
+    .post(
+        isLoggedIn,
+        isVerified,
+        authorizedRoles("LIBRARIAN", "ADMIN"),
+        fetchUserDetails
+    );
 
 export default userRouter;

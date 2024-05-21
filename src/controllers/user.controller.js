@@ -846,6 +846,66 @@ export const getFine = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const searchUser = asyncHandler(async (req, res, next) => {});
+export const searchUsers = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user email from query
+        const { query } = req.query;
 
-export const fetchUserDetails = asyncHandler(async (req, res, next) => {});
+        // get user details from database
+        const users = await User.find({
+            name: {
+                $regex: new RegExp(query, "i")
+            }
+        }).select("-password -refreshToken");
+        if (!users.length) {
+            return res.status(200).json(new ApiResponse("No users found", {}));
+        }
+
+        // send response
+        return res
+            .status(200)
+            .json(new ApiResponse("Users fetched successfully", users));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: searchUser :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});
+
+export const fetchUserDetails = asyncHandler(async (req, res, next) => {
+    try {
+        // Get user email from body
+        const { email } = req.body;
+
+        // Check if email is valid
+        if (!email) {
+            throw new ApiError("Email is required", 400);
+        }
+        if (!validateEmail(email)) {
+            throw new ApiError("Invalid email format", 400);
+        }
+
+        // Get user details from database
+        const user = await User.findOne({ email }).select(
+            "-password -refreshToken"
+        );
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        }
+
+        // Send response
+        return res
+            .status(200)
+            .json(new ApiResponse("User details fetched successfully", user));
+    } catch (error) {
+        return next(
+            new ApiError(
+                `user.controller :: fetchUserDetails :: ${error}`,
+                error.statusCode
+            )
+        );
+    }
+});

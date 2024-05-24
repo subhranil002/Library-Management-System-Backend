@@ -4,10 +4,10 @@ import morgan from "morgan";
 import cors from "cors";
 import constants from "./constants.js";
 import cookieParser from "cookie-parser";
-import healthCheckRouter from "./routes/healthCheck.route.js";
-import userRouter from "./routes/user.route.js";
-import bookRouter from "./routes/book.route.js";
-import paymentRouter from "./routes/payment.route.js";
+import healthCheckRouter from "./routes/healthCheck.routes.js";
+import userRouter from "./routes/user.routes.js";
+import bookRouter from "./routes/book.routes.js";
+import paymentRouter from "./routes/payment.routes.js";
 
 const app = express();
 

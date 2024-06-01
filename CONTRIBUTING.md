@@ -82,6 +82,7 @@ You can use npm, Yarn, or Bun to install dependencies.
     SMTP_PORT=your-smtp-port
     SMTP_USERNAME=your-smtp-username
     SMTP_PASSWORD=your-smtp-password
+    FINE_AMOUNT_PER_DAY=your-fine-amount-per-day
     ```
 
 ### Run the Project
@@ -91,19 +92,19 @@ You can use npm, Yarn, or Bun to install dependencies.
     #### Using npm
 
     ```sh
-    npm start
+    npm run dev
     ```
 
     #### Using Yarn
 
     ```sh
-    yarn start
+    yarn run dev
     ```
 
     #### Using Bun
 
     ```sh
-    bun start
+    bun run dev
     ```
 
 2. The server should now be running on the port specified in your `.env` file (default is 3500). You can access the API at `http://localhost:3500/api/v1/healthcheck`.

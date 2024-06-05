@@ -6,7 +6,7 @@ We are committed to maintaining the security of our Library Management System an
 
 To report a vulnerability, please follow these steps:
 
-1. **Do not create a public issue.** Instead, send an email to [theopenpage@gmail.com](mailto:theopenpage@gmail.com) with the following details:
+1. **Do not create a public issue.** Instead, send an email to [theopenpage.subhranil@gmail.com](mailto:theopenpage.subhranil@gmail.com) with the following details:
     - Description of the vulnerability.
     - Steps to reproduce the issue.
     - Any potential fixes or mitigations you have in mind.
@@ -53,6 +53,6 @@ To ensure the security of the Library Management System, we follow these best pr
     - Implement logging and monitoring to detect and respond to suspicious activities.
     - Regularly review logs for signs of potential security incidents.
 
-We appreciate your assistance in improving the security of our Library Management System. If you have any questions or need further information, please contact [theopenpage@gmail.com](mailto:theopenpage@gmail.com).
+We appreciate your assistance in improving the security of our Library Management System. If you have any questions or need further information, please contact [theopenpage.subhranil@gmail.com](mailto:theopenpage.subhranil@gmail.com).
 
 Thank you for helping us keep our project secure.

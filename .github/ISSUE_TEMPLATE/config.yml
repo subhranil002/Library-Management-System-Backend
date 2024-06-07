@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Bug Report
+      url: https://github.com/subhranil002/Library-Management-System-Backend/issues/new?template=bug_report.md
+      about: Report a bug to help us improve the project.
+    - name: Feature Request
+      url: https://github.com/subhranil002/Library-Management-System-Backend/issues/new?template=feature_request.md
+      about: Suggest a new feature or enhancement.
+    - name: Documentation Update
+      url: https://github.com/subhranil002/Library-Management-System-Backend/issues/new?template=documentation_update.md
+      about: Suggest an update to the project documentation.
+    - name: Question
+      url: https://github.com/subhranil002/Library-Management-System-Backend/issues/new?template=question.md
+      about: Ask a question about the project.

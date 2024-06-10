@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 contact_links:
-    - name: Bug Report
+    - name: Bug report
       url: https://github.com/subhranil002/Library-Management-System-Backend/issues/new?template=bug_report.md
       about: Report a bug to help us improve the project.
     - name: Feature Request

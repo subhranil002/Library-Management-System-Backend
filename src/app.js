@@ -1,13 +1,15 @@
 import express from "express";
-import errorMiddleware from "./middlewares/error.middleware.js";
+import { errorMiddleware } from "./middlewares/index.js";
 import morgan from "morgan";
 import cors from "cors";
 import constants from "./constants.js";
 import cookieParser from "cookie-parser";
-import healthCheckRouter from "./routes/healthCheck.routes.js";
-import userRouter from "./routes/user.routes.js";
-import bookRouter from "./routes/book.routes.js";
-import paymentRouter from "./routes/payment.routes.js";
+import {
+    healthCheckRouter as v1HealthCheckRouter,
+    userRouter as v1UserRouter,
+    bookRouter as v1BookRouter,
+    paymentRouter as v1PaymentRouter
+} from "./routes/v1/index.js";
 
 const app = express();
 
@@ -28,11 +30,11 @@ app.use(cookieParser());
 app.use(express.static("public"));
 app.use(morgan("dev"));
 
-// Routes
-app.use("/api/v1/healthcheck", healthCheckRouter);
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/book", bookRouter);
-app.use("/api/v1/payment", paymentRouter);
+// V1 Routes
+app.use("/api/v1/healthcheck", v1HealthCheckRouter);
+app.use("/api/v1/user", v1UserRouter);
+app.use("/api/v1/book", v1BookRouter);
+app.use("/api/v1/payment", v1PaymentRouter);
 
 // Handle 404 errors
 app.all("*", (req, res) => {

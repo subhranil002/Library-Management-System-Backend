@@ -1,6 +1,6 @@
 import multer from "multer";
 import path from "path";
-import ApiError from "../utils/ApiError.js";
+import { ApiError } from "../utils/index.js";
 
 // Storage configuration
 const storage = multer.diskStorage({
@@ -28,7 +28,6 @@ const fileFilter = (_req, file, cb) => {
 
     cb(null, true);
 };
-
 
 const upload = multer({ storage, fileFilter });
 export default upload;

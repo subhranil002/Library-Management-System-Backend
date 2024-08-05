@@ -1,11 +1,10 @@
-import { User } from "../models/user.model.js";
-import { BookTransaction } from "../models/bookTransaction.model.js";
-import { Fine } from "../models/fine.model.js";
-import { Otp } from "../models/otp.model.js";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse.js";
-import asyncHandler from "../utils/asyncHandler.js";
-import generateAccessAndRefreshToken from "../utils/generateTokens.js";
+import { User, BookTransaction, Fine, Otp } from "../models/index.js";
+import {
+    ApiResponse,
+    asyncHandler,
+    ApiError,
+    generateAccessAndRefreshToken
+} from "../utils/index.js";
 import {
     deleteLocalFiles,
     uploadImage,

@@ -5,12 +5,12 @@ import {
     forceCompletePayment,
     getApiKey,
     verifyPayment
-} from "../controllers/payment.controller.js";
+} from "../../controllers/payment.controller.js";
 import {
     authorizedRoles,
     isLoggedIn,
     isVerified
-} from "../middlewares/auth.middleware.js";
+} from "../../middlewares/auth.middleware.js";
 
 const paymentRouter = Router();
 

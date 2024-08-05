@@ -18,13 +18,13 @@ import {
     sendOTP,
     updateProfile,
     verifyOTP
-} from "../controllers/user.controller.js";
+} from "../../controllers/user.controller.js";
 import {
     authorizedRoles,
     isLoggedIn,
     isVerified
-} from "../middlewares/auth.middleware.js";
-import upload from "../middlewares/multer.middleware.js";
+} from "../../middlewares/auth.middleware.js";
+import { upload } from "../../middlewares/index.js";
 
 const userRouter = Router();
 

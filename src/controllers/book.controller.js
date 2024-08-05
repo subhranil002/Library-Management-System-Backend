@@ -1,9 +1,5 @@
-import { Book } from "../models/book.model.js";
-import { BookTransaction } from "../models/bookTransaction.model.js";
-import { User } from "../models/user.model.js";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import { Book, BookTransaction, User } from "../models/index.js";
+import { ApiError, ApiResponse, asyncHandler } from "../utils/index.js";
 import {
     deleteLocalFiles,
     uploadImage,

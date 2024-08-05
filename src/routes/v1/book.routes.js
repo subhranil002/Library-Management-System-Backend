@@ -8,13 +8,13 @@ import {
     issueBook,
     returnBook,
     searchBooks
-} from "../controllers/book.controller.js";
+} from "../../controllers/book.controller.js";
 import {
     isLoggedIn,
     authorizedRoles,
     isVerified
-} from "../middlewares/auth.middleware.js";
-import upload from "../middlewares/multer.middleware.js";
+} from "../../middlewares/auth.middleware.js";
+import { upload } from "../../middlewares/index.js";
 
 const bookRouter = Router();
 

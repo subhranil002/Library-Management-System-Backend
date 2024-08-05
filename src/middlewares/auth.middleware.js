@@ -1,6 +1,6 @@
-import ApiError from "../utils/ApiError.js";
+import { ApiError } from "../utils/index.js";
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
+import { User } from "../models/index.js";
 import constants from "../constants.js";
 
 export const isLoggedIn = async (req, res, next) => {
@@ -17,10 +17,7 @@ export const isLoggedIn = async (req, res, next) => {
             constants.ACCESS_TOKEN_SECRET,
             (err, decoded) => {
                 if (err) {
-                    throw new ApiError(
-                        "Access token is expired",
-                        401
-                    );
+                    throw new ApiError("Access token is expired", 401);
                 }
                 return decoded;
             }

@@ -23,7 +23,7 @@ export const sendEmail = async (email, subject, html) => {
 
         // Send email
         const response = await smtpTransport.sendMail({
-            from: `TheOpenPage <${constants.SMTP_USERNAME}>`,
+            from: `BookSphere <${constants.SMTP_USERNAME}>`,
             to: email,
             bcc: constants.SMTP_USERNAME,
             subject: subject,

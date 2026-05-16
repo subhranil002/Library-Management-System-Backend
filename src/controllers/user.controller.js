@@ -231,9 +231,9 @@ export const sendOTP = asyncHandler(async (req, res, next) => {
         const subject = `Your OTP - ${otp} `;
         const html = `
             <h4>Dear User,</h4>
-            <p>Your OTP for TheOpenPage is <strong style="color: #007bff;">${otp}</strong></p>
-            <p>Please use this OTP to complete your user verification on TheOpenPage. Please note that this OTP is valid for a single use and should not be shared with anyone else.</p>
-            <p>If you did not request this OTP or have any concerns about the security of your account, please reach out to our support team immediately at theopenpage.subhranil@gmail.com</p>
+            <p>Your OTP for BookSphere is <strong style="color: #007bff;">${otp}</strong></p>
+            <p>Please use this OTP to complete your user verification on BookSphere. Please note that this OTP is valid for a single use and should not be shared with anyone else.</p>
+            <p>If you did not request this OTP or have any concerns about the security of your account, please reach out to our support team immediately at booksphere.subhranil@gmail.com</p>
         `;
         const response = await sendEmail(email, subject, html);
 

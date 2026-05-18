@@ -20,7 +20,8 @@ const constants = {
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USERNAME: process.env.SMTP_USERNAME,
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
-    FINE_AMOUNT_PER_DAY: process.env.FINE_AMOUNT_PER_DAY
+    FINE_AMOUNT_PER_DAY: process.env.FINE_AMOUNT_PER_DAY,
+    REDIS_URI: process.env.REDIS_URI
 };
 
 export default constants;

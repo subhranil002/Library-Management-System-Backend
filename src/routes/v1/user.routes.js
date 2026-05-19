@@ -24,9 +24,28 @@ import {
     isLoggedIn,
     isVerified
 } from "../../middlewares/auth.middleware.js";
-import { upload } from "../../middlewares/index.js";
+import { upload, rateLimiter } from "../../middlewares/index.js";
 
 const userRouter = Router();
+
+// Rate limiters for sensitive routes
+const loginLimiter = rateLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxLimit: 5,
+    message: "Too many login attempts. Please try again after 15 minutes."
+});
+
+const otpLimiter = rateLimiter({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    maxLimit: 3,
+    message: "Too many OTP requests. Please try again after 10 minutes."
+});
+
+const verifyOtpLimiter = rateLimiter({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    maxLimit: 5,
+    message: "Too many verification attempts. Please try again after 10 minutes."
+});
 
 // Routes
 userRouter
@@ -38,7 +57,7 @@ userRouter
         register
     );
 
-userRouter.route("/login").post(login);
+userRouter.route("/login").post(loginLimiter, login);
 
 userRouter.route("/logout").get(isLoggedIn, logout);
 
@@ -48,6 +67,7 @@ userRouter
         isLoggedIn,
         isVerified,
         authorizedRoles("LIBRARIAN", "ADMIN"),
+        otpLimiter,
         sendOTP
     );
 
@@ -57,6 +77,7 @@ userRouter
         isLoggedIn,
         isVerified,
         authorizedRoles("LIBRARIAN", "ADMIN"),
+        verifyOtpLimiter,
         verifyOTP
     );
 

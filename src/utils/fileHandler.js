@@ -21,6 +21,13 @@ export const uploadImage = async localFilePath => {
     // Check if localFilePath is empty
     if (localFilePath == "") return null;
 
+    if (process.env.NODE_ENV === "test") {
+        return {
+            public_id: "test_public_id",
+            secure_url: "https://test.url/image.png"
+        };
+    }
+
     try {
         // Upload image
         const response = await cloudinary.uploader.upload(localFilePath, {
@@ -51,6 +58,7 @@ export const uploadImage = async localFilePath => {
 };
 
 export const deleteImage = async publicId => {
+    if (process.env.NODE_ENV === "test") return true;
     try {
         // Check if publicId is empty
         if (publicId == "") return true;

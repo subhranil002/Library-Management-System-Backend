@@ -83,3 +83,22 @@ export const authorizedRoles =
             );
         }
     };
+
+export const isAdmin = async (req, res, next) => {
+    try {
+        if (!req.user) {
+            throw new ApiError("User authentication required", 401);
+        }
+        if (req.user.role !== "ADMIN" && req.user.role !== "LIBRARIAN") {
+            throw new ApiError("Unauthorized role access", 403);
+        }
+        next();
+    } catch (error) {
+        return next(
+            new ApiError(
+                `auth.middleware :: isAdmin: ${error}`,
+                error.statusCode || 403
+            )
+        );
+    }
+};

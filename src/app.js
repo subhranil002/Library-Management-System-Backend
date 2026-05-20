@@ -4,12 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import constants from "./constants.js";
 import cookieParser from "cookie-parser";
-import {
-    healthCheckRouter as v1HealthCheckRouter,
-    userRouter as v1UserRouter,
-    bookRouter as v1BookRouter,
-    paymentRouter as v1PaymentRouter
-} from "./routes/v1/index.js";
+import apiRouter from "./routes/index.js";
 
 const app = express();
 
@@ -30,11 +25,8 @@ app.use(cookieParser());
 app.use(express.static("public"));
 app.use(morgan("dev"));
 
-// V1 Routes
-app.use("/api/v1/healthcheck", v1HealthCheckRouter);
-app.use("/api/v1/user", v1UserRouter);
-app.use("/api/v1/book", v1BookRouter);
-app.use("/api/v1/payment", v1PaymentRouter);
+// API Routes
+app.use("/api", apiRouter);
 
 // Handle 404 errors
 app.all("*", (req, res) => {

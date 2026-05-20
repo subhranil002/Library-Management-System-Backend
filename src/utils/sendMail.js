@@ -9,6 +9,9 @@ export const validateEmail = email => {
 };
 
 export const sendEmail = async (email, subject, html) => {
+    if (process.env.NODE_ENV === "test") {
+        return true;
+    }
     try {
         // Verify connection
         await new Promise((resolve, reject) => {

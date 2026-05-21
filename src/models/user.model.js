@@ -89,6 +89,10 @@ const userSchema = new mongoose.Schema(
             enum: ["USER", "LIBRARIAN", "ADMIN"],
             default: "USER"
         },
+        libraryCardQrCodeUrl: {
+            type: String,
+            default: null
+        },
         verified: {
             type: Boolean,
             default: false

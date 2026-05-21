@@ -24,9 +24,14 @@ import {
     isLoggedIn,
     isVerified
 } from "../../middlewares/auth.middleware.js";
-import { upload, rateLimiter } from "../../middlewares/index.js";
+import { upload, rateLimiter, cacheMiddleware } from "../../middlewares/index.js";
 
 const userRouter = Router();
+
+// Rate limiters for sensitive routes
+// ... existing limiters ...
+
+const generateUserSummaryCacheKey = (req) => `user:summary:${req.user._id}`;
 
 // Rate limiters for sensitive routes
 const loginLimiter = rateLimiter({
@@ -81,7 +86,7 @@ userRouter
         verifyOTP
     );
 
-userRouter.route("/current-user").get(isLoggedIn, getCurrentUser);
+userRouter.route("/current-user").get(isLoggedIn, cacheMiddleware(generateUserSummaryCacheKey), getCurrentUser);
 
 userRouter
     .route("/change-avatar")

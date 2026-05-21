@@ -3,7 +3,9 @@ import {
     ApiResponse,
     asyncHandler,
     ApiError,
-    generateAccessAndRefreshToken
+    generateAccessAndRefreshToken,
+    setCache,
+    deleteCache
 } from "../utils/index.js";
 import {
     deleteLocalFiles,
@@ -319,6 +321,11 @@ export const getCurrentUser = asyncHandler(async (req, res, next) => {
             "-password -borrowedBooks -refreshToken"
         );
 
+        // Cache the result
+        if (req.cacheKey) {
+            await setCache(req.cacheKey, user, 3600); // cache for 1 hour
+        }
+
         // Send response
         return res
             .status(200)
@@ -377,6 +384,9 @@ export const changeAvatar = asyncHandler(async (req, res, next) => {
             { new: true }
         ).select("avatar");
 
+        // Invalidate cache
+        await deleteCache(`user:summary:${req.user._id}`);
+
         // Return updated user
         return res
             .status(200)
@@ -422,6 +432,9 @@ export const changePassword = asyncHandler(async (req, res, next) => {
         // Update user password
         user.password = newPassword;
         await user.save();
+
+        // Invalidate cache
+        await deleteCache(`user:summary:${user._id}`);
 
         // Send response
         return res
@@ -508,6 +521,9 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
                 new: true
             }
         );
+
+        // Invalidate cache
+        await deleteCache(`user:summary:${user._id}`);
 
         // Send response
         return res

@@ -14,7 +14,7 @@ import {
     authorizedRoles,
     isVerified
 } from "../../middlewares/auth.middleware.js";
-import { upload, rateLimiter } from "../../middlewares/index.js";
+import { upload, rateLimiter, cacheMiddleware } from "../../middlewares/index.js";
 
 const bookRouter = Router();
 
@@ -23,6 +23,10 @@ const searchLimiter = rateLimiter({
     maxLimit: 20,
     message: "Too many search requests. Please try again later."
 });
+
+// Cache key generators
+const generateSearchCacheKey = (req) => `search:books:${req.query.query || ""}:${req.query.genre || ""}`;
+const generateBookDetailsCacheKey = (req) => `book:isbn:${req.params.isbn13}`;
 
 // Routes
 bookRouter
@@ -34,9 +38,9 @@ bookRouter
         addBook
     );
 
-bookRouter.route("/search-books").get(searchLimiter, searchBooks);
+bookRouter.route("/search-books").get(searchLimiter, cacheMiddleware(generateSearchCacheKey), searchBooks);
 
-bookRouter.route("/get-book/:isbn13").get(getBookDetails);
+bookRouter.route("/get-book/:isbn13").get(cacheMiddleware(generateBookDetailsCacheKey), getBookDetails);
 
 bookRouter
     .route("/change-thumbnail/:bookCode")

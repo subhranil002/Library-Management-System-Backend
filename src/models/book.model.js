@@ -110,6 +110,23 @@ const bookSchema = new mongoose.Schema(
                 default:
                     "https://res.cloudinary.com/de4zawd4d/image/upload/v1712392736/samples/cloudinary-icon.png"
             }
+        },
+        reviewStats: {
+            averageRating: {
+                type: Number,
+                default: 0
+            },
+            totalReviews: {
+                type: Number,
+                default: 0
+            },
+            ratingDistribution: {
+                1: { type: Number, default: 0 },
+                2: { type: Number, default: 0 },
+                3: { type: Number, default: 0 },
+                4: { type: Number, default: 0 },
+                5: { type: Number, default: 0 }
+            }
         }
     },
     {

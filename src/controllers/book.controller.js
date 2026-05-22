@@ -1,5 +1,8 @@
 import { Book, BookTransaction, User } from "../models/index.js";
 import { ApiError, ApiResponse, asyncHandler } from "../utils/index.js";
+import { assignNextInQueue } from "../helpers/reservation.helper.js";
+import bookRepository from "../repositories/book.repository.js";
+import { logRecommendationEvent } from "../services/recommendation.service.js";
 import {
     deleteLocalFiles,
     uploadImage,
@@ -110,13 +113,13 @@ export const addBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book already exists
-        const isExists = await Book.findOne({ bookCode });
+        const isExists = await bookRepository.findByBookCode(bookCode);
         if (isExists) {
             throw new ApiError("Book with this bookCode already exists", 400);
         }
 
         // Add book to database
-        const newBook = await Book.create({
+        const newBook = await bookRepository.create({
             bookCode,
             volumeInfo: {
                 title,
@@ -135,7 +138,7 @@ export const addBook = asyncHandler(async (req, res, next) => {
         });
 
         // Check if book created successfully
-        const book = await Book.findById(newBook._id);
+        const book = await bookRepository.findById(newBook._id);
         if (!book) {
             throw new ApiError("Book not created", 400);
         }
@@ -257,6 +260,16 @@ export const searchBooks = asyncHandler(async (req, res, next) => {
             return res.status(200).json(new ApiResponse("No books found", {}));
         }
 
+        // Log search event asynchronously if user is logged in
+        if (req.user) {
+            logRecommendationEvent({
+                userId: req.user._id,
+                actionType: "SEARCH",
+                searchTerm: search,
+                genre: genre ? [genre] : []
+            });
+        }
+
         // Send response
         return res
             .status(200)
@@ -282,9 +295,7 @@ export const getBookDetails = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({
-            "industryIdentifiers.isbn13": isbn13
-        });
+        const book = await bookRepository.findByIsbn13(isbn13);
         if (!book) {
             throw new ApiError("Book not found", 404);
         }
@@ -413,7 +424,7 @@ export const changeThumbnail = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({ bookCode });
+        const book = await bookRepository.findByBookCode(bookCode);
         if (!book) {
             deleteLocalFiles([bookThumbnailPath]);
             throw new ApiError("Book not found", 400);
@@ -467,7 +478,7 @@ export const deleteBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({ bookCode });
+        const book = await bookRepository.findByBookCode(bookCode);
         if (!book) {
             throw new ApiError("Book not found", 400);
         }
@@ -479,7 +490,7 @@ export const deleteBook = asyncHandler(async (req, res, next) => {
         }
 
         // Delete book
-        await Book.findByIdAndDelete(book._id);
+        await bookRepository.deleteByIsbn13(book.industryIdentifiers.isbn13);
 
         // Send response
         return res
@@ -506,7 +517,7 @@ export const issueBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({ bookCode });
+        const book = await bookRepository.findByBookCode(bookCode);
         if (!book) {
             throw new ApiError("Book not found", 400);
         }
@@ -579,6 +590,15 @@ export const issueBook = asyncHandler(async (req, res, next) => {
             returnDate
         });
 
+        // Log borrow event
+        logRecommendationEvent({
+            userId: borrower._id,
+            isbn13: book.industryIdentifiers.isbn13,
+            actionType: "BORROW",
+            genre: book.genre,
+            author: book.volumeInfo?.author
+        });
+
         // Send response
         return res
             .status(200)
@@ -606,7 +626,7 @@ export const returnBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({ bookCode });
+        const book = await bookRepository.findByBookCode(bookCode);
         if (!book) {
             throw new ApiError("Book not found", 404);
         }
@@ -666,7 +686,7 @@ export const forceReturnBook = asyncHandler(async (req, res, next) => {
         }
 
         // Check if book exists
-        const book = await Book.findOne({ bookCode });
+        const book = await bookRepository.findByBookCode(bookCode);
         if (!book) {
             throw new ApiError("Book not found", 404);
         }

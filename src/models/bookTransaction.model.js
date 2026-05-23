@@ -290,6 +290,22 @@ const bookTransactionSchema = new mongoose.Schema(
             required: [true, "Return date is required"],
             trim: true
         },
+        originalDueDate: {
+            type: Date,
+            default: null
+        },
+        renewalCount: {
+            type: Number,
+            default: 0
+        },
+        maxRenewals: {
+            type: Number,
+            default: 2
+        },
+        lastRenewedAt: {
+            type: Date,
+            default: null
+        },
         status: {
             type: String,
             enum: ["PENDING", "FINED", "RETURNED"],

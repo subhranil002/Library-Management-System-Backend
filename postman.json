@@ -14,13 +14,18 @@
     ],
     "item": [
         {
-            "name": "HealthCheck",
+            "name": "Healthcheck",
             "item": [
                 {
-                    "name": "Health Check API",
+                    "name": "GET /healthcheck",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
                             "raw": "{{baseUrl}}/healthcheck",
                             "host": [
@@ -35,10 +40,10 @@
             ]
         },
         {
-            "name": "User & Auth",
+            "name": "User",
             "item": [
                 {
-                    "name": "Register User",
+                    "name": "POST /user/register",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -49,7 +54,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"9876543210\",\n    \"password\": \"password123\",\n    \"country\": \"India\",\n    \"state\": \"West Bengal\",\n    \"city\": \"Kolkata\",\n    \"pincode\": \"700001\",\n    \"address_line_1\": \"123 Park Street\",\n    \"role\": \"USER\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/register",
@@ -64,7 +69,7 @@
                     }
                 },
                 {
-                    "name": "Login",
+                    "name": "POST /user/login",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -75,7 +80,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/login",
@@ -90,7 +95,29 @@
                     }
                 },
                 {
-                    "name": "Send OTP",
+                    "name": "GET /user/logout",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "logout"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /user/send-otp",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -101,7 +128,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"john@example.com\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/send-otp",
@@ -116,7 +143,7 @@
                     }
                 },
                 {
-                    "name": "Verify OTP",
+                    "name": "POST /user/verify-otp",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -127,7 +154,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"john@example.com\",\n    \"otp\": \"123456\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/verify-otp",
@@ -142,10 +169,15 @@
                     }
                 },
                 {
-                    "name": "Current User",
+                    "name": "GET /user/current-user",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
                             "raw": "{{baseUrl}}/user/current-user",
                             "host": [
@@ -159,19 +191,18 @@
                     }
                 },
                 {
-                    "name": "Change Avatar",
+                    "name": "PUT /user/change-avatar",
                     "request": {
                         "method": "PUT",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "body": {
-                            "mode": "formdata",
-                            "formdata": [
-                                {
-                                    "key": "avatar",
-                                    "type": "file",
-                                    "src": []
-                                }
-                            ]
+                            "mode": "raw",
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/change-avatar",
@@ -186,7 +217,7 @@
                     }
                 },
                 {
-                    "name": "Change Password",
+                    "name": "PUT /user/change-password",
                     "request": {
                         "method": "PUT",
                         "header": [
@@ -197,7 +228,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"oldPassword\": \"password123\",\n    \"newPassword\": \"newPassword123\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/change-password",
@@ -212,7 +243,7 @@
                     }
                 },
                 {
-                    "name": "Update Profile",
+                    "name": "PUT /user/update-profile",
                     "request": {
                         "method": "PUT",
                         "header": [
@@ -223,7 +254,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"john@example.com\",\n    \"phone\": \"9876543210\",\n    \"city\": \"New City\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/update-profile",
@@ -238,10 +269,59 @@
                     }
                 },
                 {
-                    "name": "Get My Borrowed Books",
+                    "name": "GET /user/refresh-token",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/refresh-token",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "refresh-token"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE /user/delete-user",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/delete-user",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "delete-user"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /user/borrowed-books",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
                             "raw": "{{baseUrl}}/user/borrowed-books",
                             "host": [
@@ -255,7 +335,7 @@
                     }
                 },
                 {
-                    "name": "Fetch User Borrowed Books (Admin)",
+                    "name": "POST /user/borrowed-books",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -266,7 +346,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"john@example.com\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/user/borrowed-books",
@@ -281,10 +361,15 @@
                     }
                 },
                 {
-                    "name": "Get My Fined Books",
+                    "name": "GET /user/fined-books",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
                             "raw": "{{baseUrl}}/user/fined-books",
                             "host": [
@@ -298,69 +383,7 @@
                     }
                 },
                 {
-                    "name": "Search Users",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/user/search?query=John",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "user",
-                                "search"
-                            ],
-                            "query": [
-                                {
-                                    "key": "query",
-                                    "value": "John"
-                                }
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Refresh Token",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/user/refresh-token",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "user",
-                                "refresh-token"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Logout",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/user/logout",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "user",
-                                "logout"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Books",
-            "item": [
-                {
-                    "name": "Add Book",
+                    "name": "POST /user/fined-books",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -371,7 +394,109 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"bookCode\": \"B001\",\n    \"title\": \"Sample Book Title\",\n    \"subtitle\": \"Sample Subtitle\",\n    \"author\": \"Jane Doe\",\n    \"publisher\": \"Awesome Press\",\n    \"publishedDate\": \"2023-01-01\",\n    \"description\": \"A great book about amazing things.\",\n    \"genre\": [\"FICTION\"],\n    \"isbn10\": \"1234567890\",\n    \"isbn13\": \"1234567890123\",\n    \"pageCount\": 350\n}"
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/fined-books",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "fined-books"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /user/fine/:bookCode",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/fine/:bookCode",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "fine",
+                                ":bookCode"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /user/search",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/search",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "search"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /user/fetch-user",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/fetch-user",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "fetch-user"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Book",
+            "item": [
+                {
+                    "name": "POST /book/add-book",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/book/add-book",
@@ -386,52 +511,102 @@
                     }
                 },
                 {
-                    "name": "Search Books",
+                    "name": "GET /book/search-books",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
-                            "raw": "{{baseUrl}}/book/search-books?query=Sample&genre=FICTION",
+                            "raw": "{{baseUrl}}/book/search-books",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "book",
                                 "search-books"
-                            ],
-                            "query": [
-                                {
-                                    "key": "query",
-                                    "value": "Sample"
-                                },
-                                {
-                                    "key": "genre",
-                                    "value": "FICTION"
-                                }
                             ]
                         }
                     }
                 },
                 {
-                    "name": "Get Book by ISBN",
+                    "name": "GET /book/get-book/:isbn13",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
-                            "raw": "{{baseUrl}}/book/get-book/1234567890123",
+                            "raw": "{{baseUrl}}/book/get-book/:isbn13",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "book",
                                 "get-book",
-                                "1234567890123"
+                                ":isbn13"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "Issue Book",
+                    "name": "PUT /book/change-thumbnail/:bookCode",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/book/change-thumbnail/:bookCode",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "book",
+                                "change-thumbnail",
+                                ":bookCode"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE /book/delete-book/:bookCode",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/book/delete-book/:bookCode",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "book",
+                                "delete-book",
+                                ":bookCode"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /book/issue-book",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -442,7 +617,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"bookCode\": \"B001\",\n    \"borrowerEmail\": \"john@example.com\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/book/issue-book",
@@ -457,47 +632,47 @@
                     }
                 },
                 {
-                    "name": "Return Book",
+                    "name": "GET /book/return-book/:bookCode",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
-                            "raw": "{{baseUrl}}/book/return-book/B001",
+                            "raw": "{{baseUrl}}/book/return-book/:bookCode",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "book",
                                 "return-book",
-                                "B001"
+                                ":bookCode"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "Change Book Thumbnail",
+                    "name": "GET /book/force-return-book/:bookCode",
                     "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "formdata",
-                            "formdata": [
-                                {
-                                    "key": "thumbnail",
-                                    "type": "file",
-                                    "src": []
-                                }
-                            ]
-                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
-                            "raw": "{{baseUrl}}/book/change-thumbnail/B001",
+                            "raw": "{{baseUrl}}/book/force-return-book/:bookCode",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "book",
-                                "change-thumbnail",
-                                "B001"
+                                "force-return-book",
+                                ":bookCode"
                             ]
                         }
                     }
@@ -505,13 +680,18 @@
             ]
         },
         {
-            "name": "Payments",
+            "name": "Payment",
             "item": [
                 {
-                    "name": "Get API Key",
+                    "name": "GET /payment/apikey",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
                             "raw": "{{baseUrl}}/payment/apikey",
                             "host": [
@@ -525,12 +705,17 @@
                     }
                 },
                 {
-                    "name": "Create Overdue Payment",
+                    "name": "GET /payment/create/overdue-payment/:book_transaction_id",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
                         "url": {
-                            "raw": "{{baseUrl}}/payment/create/overdue-payment/transaction_id_123",
+                            "raw": "{{baseUrl}}/payment/create/overdue-payment/:book_transaction_id",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -538,13 +723,13 @@
                                 "payment",
                                 "create",
                                 "overdue-payment",
-                                "transaction_id_123"
+                                ":book_transaction_id"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "Create Custom Payment",
+                    "name": "POST /payment/create/custom-payment",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -555,7 +740,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"bookCode\": \"B001\",\n    \"fineReason\": \"Lost Book\",\n    \"fineAmount\": 150\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/payment/create/custom-payment",
@@ -571,7 +756,7 @@
                     }
                 },
                 {
-                    "name": "Verify Payment",
+                    "name": "POST /payment/verify",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -582,7 +767,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"razorpay_payment_id\": \"pay_123\",\n    \"razorpay_order_id\": \"order_123\",\n    \"razorpay_signature\": \"signature_123\"\n}"
+                            "raw": "{}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/payment/verify",
@@ -592,6 +777,871 @@
                             "path": [
                                 "payment",
                                 "verify"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /payment/force-complete/:razorpay_order_id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/payment/force-complete/:razorpay_order_id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "payment",
+                                "force-complete",
+                                ":razorpay_order_id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reservation",
+            "item": [
+                {
+                    "name": "POST /reservation",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/reservation",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reservation"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /reservation/me",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reservation/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reservation",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /reservation/:id/cancel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/reservation/:id/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reservation",
+                                ":id",
+                                "cancel"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Borrow",
+            "item": [
+                {
+                    "name": "POST /borrow/:borrowId/renew",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/borrow/:borrowId/renew",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "borrow",
+                                ":borrowId",
+                                "renew"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /borrow/:borrowId/renewal-status",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/borrow/:borrowId/renewal-status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "borrow",
+                                ":borrowId",
+                                "renewal-status"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Inventory",
+            "item": [
+                {
+                    "name": "POST /inventory/branches",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/branches",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "branches"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /inventory/books/:isbn13/copies",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/books/:isbn13/copies",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "books",
+                                ":isbn13",
+                                "copies"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /inventory/books/:isbn13/availability",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/books/:isbn13/availability",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "books",
+                                ":isbn13",
+                                "availability"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /inventory/copies/:copyId/issue",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/copies/:copyId/issue",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "copies",
+                                ":copyId",
+                                "issue"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /inventory/copies/:copyId/return",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/copies/:copyId/return",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "copies",
+                                ":copyId",
+                                "return"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /inventory/copies/:copyId/transfer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/inventory/copies/:copyId/transfer",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "inventory",
+                                "copies",
+                                ":copyId",
+                                "transfer"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Barcode",
+            "item": [
+                {
+                    "name": "POST /barcode/copies/:copyId/qr",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/barcode/copies/:copyId/qr",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "barcode",
+                                "copies",
+                                ":copyId",
+                                "qr"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /barcode/users/:userId/card-qr",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/barcode/users/:userId/card-qr",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "barcode",
+                                "users",
+                                ":userId",
+                                "card-qr"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /barcode/copies/:copyId/code",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/barcode/copies/:copyId/code",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "barcode",
+                                "copies",
+                                ":copyId",
+                                "code"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /barcode/scan/verify",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/barcode/scan/verify",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "barcode",
+                                "scan",
+                                "verify"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Recommendations",
+            "item": [
+                {
+                    "name": "GET /recommendations/popular",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/recommendations/popular",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "recommendations",
+                                "popular"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /recommendations/by-genre/:genre",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/recommendations/by-genre/:genre",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "recommendations",
+                                "by-genre",
+                                ":genre"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /recommendations/me",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/recommendations/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "recommendations",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /recommendations/event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/recommendations/event",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "recommendations",
+                                "event"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "GET /reviews/books/:isbn13/reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reviews/books/:isbn13/reviews",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "books",
+                                ":isbn13",
+                                "reviews"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /reviews/books/:isbn13/reviews",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/reviews/books/:isbn13/reviews",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "books",
+                                ":isbn13",
+                                "reviews"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH /reviews/:id",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/reviews/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE /reviews/:id",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reviews/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST /reviews/:id/flag",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/reviews/:id/flag",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":id",
+                                "flag"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Analytics",
+            "item": [
+                {
+                    "name": "GET /analytics/overview",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/analytics/overview",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "analytics",
+                                "overview"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /analytics/books/top-issued",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/analytics/books/top-issued",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "analytics",
+                                "books",
+                                "top-issued"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /analytics/authors/trending",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/analytics/authors/trending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "analytics",
+                                "authors",
+                                "trending"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /analytics/genres/trending",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/analytics/genres/trending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "analytics",
+                                "genres",
+                                "trending"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Assistant",
+            "item": [
+                {
+                    "name": "POST /assistant/chat",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/assistant/chat",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "assistant",
+                                "chat"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /assistant/sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/assistant/sessions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "assistant",
+                                "sessions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET /assistant/session/:sessionId",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/assistant/session/:sessionId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "assistant",
+                                "session",
+                                ":sessionId"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Misc",
+            "item": [
+                {
+                    "name": "GET /api/v2",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}//api/v2",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2"
                             ]
                         }
                     }

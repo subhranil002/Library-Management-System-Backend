@@ -1,0 +1,157 @@
+(node:23212) [MONGOOSE] Warning: Duplicate schema index on {"barcodeValue":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23212) [MONGOOSE] Warning: Duplicate schema index on {"qrCodeValue":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+Invalid Razorpay Credentials
+[0mPOST /api/v1/user/login [32m200[0m 61.809 ms - 55[0m
+▶ BookSphere E2E Test Suite
+  ▶ 1. Authentication Flow
+    ✔ Admin Login (79.7583ms)
+[0mPOST /api/v1/user/register [32m200[0m 63.902 ms - 64[0m
+    ✔ Register a New Member (by Admin) (69.5813ms)
+[0mPOST /api/v1/user/send-otp [32m200[0m 6.934 ms - 60[0m
+[0mPOST /api/v1/user/verify-otp [32m200[0m 7.326 ms - 65[0m
+    ✔ Send and Verify OTP for Registration (25.5748ms)
+[0mPOST /api/v1/user/login [32m200[0m 59.096 ms - 55[0m
+    ✔ New Member Login (64.2884ms)
+ErrorMiddleware:  ApiError: auth.middleware :: isLoggedIn: Error: Access token not found
+    at isLoggedIn (file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/middlewares/auth.middleware.js:38:13)
+    at Layer.handle [as handle_request] (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\index.js:280:10)
+    at Function.handle (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\index.js:175:3)
+    at router (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\index.js:47:12) {
+  statusCode: 401,
+  data: null
+}
+[0mGET /api/v1/user/current-user [33m401[0m 1.115 ms - 1619[0m
+    ✔ Unauthorized Block Check (5.2405ms)
+  ✔ 1. Authentication Flow (245.6417ms)
+[0mPOST /api/v1/book/add-book [32m200[0m 6.009 ms - 768[0m
+  ▶ 2. Catalog (Books) Flow
+    ✔ Librarian Creates a Book (9.5511ms)
+[0mGET /api/v1/book/get-book/9781234567890 [32m200[0m 5.160 ms - 555[0m
+    ✔ Fetch Book by ISBN (8.9373ms)
+[0mGET /api/v1/book/search-books?query=Testing [32m200[0m 2.292 ms - 475[0m
+    ✔ Search for Book (6.9788ms)
+[0mPUT /api/v1/book/change-thumbnail/BOOK-E2E-1 [32m200[0m 9.335 ms - 144[0m
+    ✔ Update Book Thumbnail (Multipart Upload) (15.5628ms)
+ErrorMiddleware:  ApiError: auth.middleware :: authorizedRoles: Error: Unauthorized role
+    at file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/middlewares/auth.middleware.js:79:17
+    at Layer.handle [as handle_request] (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\route.js:149:13)
+    at isVerified (file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/middlewares/auth.middleware.js:53:9)
+    at Layer.handle [as handle_request] (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\subhr\Desktop\GitHub\Library-Management-System-Backend\node_modules\express\lib\router\route.js:149:13)
+    at isLoggedIn (file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/middlewares/auth.middleware.js:35:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  statusCode: 401,
+  data: null
+}
+[0mDELETE /api/v1/book/delete-book/BOOK-E2E-1 [33m401[0m 2.472 ms - 1239[0m
+    ✔ Unauthorized Action Protection (5.246ms)
+  ✔ 2. Catalog (Books) Flow (47.3075ms)
+[0mPOST /api/v1/inventory/books/9781234567890/copies [32m201[0m 9.066 ms - 426[0m
+  ▶ 3. Copy & Branch Flow
+    ✔ Add Physical Book Copy to Central Branch (12.3795ms)
+[0mGET /api/v1/inventory/books/9781234567890/availability [32m200[0m 6.497 ms - 256[0m
+    ✔ Fetch Copy Availability (9.9591ms)
+[0mPOST /api/v1/inventory/copies/COPY-E2E-1/issue [32m200[0m 7.089 ms - 419[0m
+    ✔ Issue Book Copy (9.8186ms)
+ErrorMiddleware:  ApiError: Copy is currently issued and cannot be issued
+    at InventoryService.issueCopy (file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/services/inventory.service.js:95:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/controllers/inventory.controller.js:32:22 {
+  statusCode: 400,
+  data: null
+}
+[0mPOST /api/v1/inventory/copies/COPY-E2E-1/issue [33m400[0m 2.887 ms - 503[0m
+    ✔ Prevent Issuing Unavailable Copy (5.5011ms)
+[0mPOST /api/v1/inventory/copies/COPY-E2E-1/return [32m200[0m 6.861 ms - 431[0m
+    ✔ Return Copy (9.4668ms)
+[0mPOST /api/v1/inventory/copies/COPY-E2E-1/transfer [32m200[0m 9.333 ms - 427[0m
+    ✔ Transfer Copy to Northside Branch (13.1333ms)
+  ✔ 3. Copy & Branch Flow (60.966ms)
+[0mPOST /api/v1/reservation [32m201[0m 35.870 ms - 111[0m
+  ▶ 4. Reservations Flow
+    ✔ Place a Reservation for Book (41.6159ms)
+[0mGET /api/v1/reservation/me [32m200[0m 3.479 ms - 377[0m
+    ✔ Retrieve My Active Reservations (7.6742ms)
+ErrorMiddleware:  ApiError: You already have an active reservation for this book
+    at ReservationService.placeReservation (file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/services/reservation.service.js:30:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/controllers/reservation.controller.js:10:24 {
+  statusCode: 400,
+  data: null
+}
+[0mPOST /api/v1/reservation [33m400[0m 3.931 ms - 530[0m
+    ✔ Prevent Duplicate Active Reservation (6.8518ms)
+[0mPOST /api/v1/user/login [32m200[0m 57.202 ms - 55[0m
+[0mPOST /api/v1/reservation [32m201[0m 17.077 ms - 106[0m
+    ✔ Place Another Reservation for Waitlist Position (79.7664ms)
+[0mPOST /api/v1/reservation/6a0dbd63a61671298d0b8dc9/cancel [32m200[0m 19.289 ms - 73[0m
+    ✔ Cancel First Reservation and Progress Waitlist Queue (33.582ms)
+  ✔ 4. Reservations Flow (170.2694ms)
+[0mPOST /api/v1/book/issue-book [32m200[0m 11.703 ms - 1628[0m
+  ▶ 5. Renewals Flow
+    ✔ Issue Book to Member (15.5241ms)
+[0mPOST /api/v1/user/login [32m200[0m 57.808 ms - 55[0m
+[0mGET /api/v1/borrow/6a0dbd63a61671298d0b8e00/renewal-status [32m200[0m 5.838 ms - 123[0m
+    ✔ Check Renewal Status (69.4111ms)
+[0mPOST /api/v1/user/login [32m200[0m 57.419 ms - 55[0m
+[0mPOST /api/v1/borrow/6a0dbd63a61671298d0b8e00/renew [32m200[0m 9.823 ms - 136[0m
+    ✔ Successfully Renew Book (72.8655ms)
+[0mPOST /api/v1/user/login [32m200[0m 56.809 ms - 55[0m
+ErrorMiddleware:  ApiError: renewal.controller :: renewBook :: There are pending reservations for this book. Renewal is blocked.
+    at file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/controllers/renewal.controller.js:77:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  statusCode: 400,
+  data: null
+}
+[0mPOST /api/v1/borrow/6a0dbd63a61671298d0b8e00/renew [33m400[0m 6.838 ms - 456[0m
+    ✔ Block Renewal When Pending Reservations Exist (72.3657ms)
+  ✔ 5. Renewals Flow (232.842ms)
+  ▶ 6. Notifications Flow
+    ✔ Verify Database Notification Creation (4.1157ms)
+  ✔ 6. Notifications Flow (4.3152ms)
+[0mPOST /api/v1/user/login [32m200[0m 55.694 ms - 55[0m
+[0mPOST /api/v1/reviews/books/9781234567890/reviews [32m201[0m 13.150 ms - 366[0m
+  ▶ 7. Reviews & Ratings Flow
+    ✔ Submit Book Review (74.4958ms)
+[0mPOST /api/v1/user/login [32m200[0m 55.327 ms - 55[0m
+ErrorMiddleware:  ApiError: review.controller :: addReview :: You have already reviewed this book. You can edit your existing review.
+    at file:///C:/Users/subhr/Desktop/GitHub/Library-Management-System-Backend/src/controllers/review.controller.js:66:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  statusCode: 400,
+  data: null
+}
+[0mPOST /api/v1/reviews/books/9781234567890/reviews [33m400[0m 4.220 ms - 465[0m
+    ✔ Block Duplicate Book Reviews (64.4873ms)
+[0mGET /api/v1/reviews/books/9781234567890/reviews [32m200[0m 5.149 ms - 555[0m
+    ✔ Fetch Book Reviews (7.8376ms)
+  ✔ 7. Reviews & Ratings Flow (147.202ms)
+  ▶ 8. Audit Logs Flow
+    ✔ Verify Important Actions Log Events (1.4476ms)
+  ✔ 8. Audit Logs Flow (1.6093ms)
+[0mGET /api/v1/analytics/overview [32m200[0m 4.950 ms - 262[0m
+  ▶ 9. Analytics Flow
+    ✔ Retrieve Analytics Overview (7.633ms)
+  ✔ 9. Analytics Flow (7.8049ms)
+[0mPOST /api/v1/assistant/chat [32m200[0m 7.104 ms - 329[0m
+  ▶ 10. AI Librarian Assistant Flow
+    ✔ Verify Greeting Intent Chat Response (9.7773ms)
+[0mPOST /api/v1/assistant/chat [32m200[0m 7.145 ms - 233[0m
+    ✔ Verify Policy Intent Chat Response (9.7852ms)
+  ✔ 10. AI Librarian Assistant Flow (19.816ms)
+✔ BookSphere E2E Test Suite (1078.7798ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2729.5277
